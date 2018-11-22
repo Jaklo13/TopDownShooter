@@ -1,2 +1,0 @@
-# TopDownShooter
-A school project
