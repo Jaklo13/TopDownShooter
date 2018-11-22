@@ -10,5 +10,5 @@ package topdownshooter;
  * @author jakob
  */
 public class TestClass {
-    //LOL
+    //LOL123
 }
