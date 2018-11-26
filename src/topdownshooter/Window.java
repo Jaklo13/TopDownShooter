@@ -17,7 +17,8 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 public class Window extends JFrame {
-    private int x = 0, y = 0, dir = -1;
+    private boolean[] bp = new boolean[0]; //Buttons Pressed
+    private int x = 0, y = 0;
     private float speed = 3, lookDir = 0;
     private Point mousePos = new Point(0,0);
     
@@ -32,6 +33,7 @@ public class Window extends JFrame {
         addMouseListener (new ML ());
         setLayout (null);
         
+        bp = new boolean[Controlls.BUTTONS.length];
 //        jButton = new JButton ();
 //        jButton.addActionListener(new ActionListener(){
 //            @Override 
@@ -54,20 +56,10 @@ public class Window extends JFrame {
     public void Update () {
         mousePos = Controlls.GetMousePos();
 //        LookAtPoint (mousePos);
-        switch (dir) {
-            case 0:
-                y -= speed;
-                break;
-            case 1:
-                y += speed;
-                break;
-            case 2:
-                x -= speed;
-                break;
-            case 3:
-                x += speed;
-                break;
-        }
+        if (bp[0] != bp[1])
+            y += (int)((bp[0])? -speed : speed);
+        if (bp[2] != bp[3])
+            x += (int)((bp[2])? -speed : speed);
     }
     
     public class KL implements KeyListener {
@@ -77,18 +69,20 @@ public class Window extends JFrame {
         @Override
         public void keyPressed(KeyEvent e) {
             int keyCode = e.getKeyCode();
-            for (Controlls.Direction d : Controlls.Direction.values()) {
-                if (keyCode == d.GetKC())
-                    dir = d.GetDir();
+            Controlls.Direction[] d = Controlls.Direction.values();
+            for (int i = 0; i < d.length; i++) {
+                if (keyCode == d[i].GetKC())
+                    bp[i] = true;
             }
         }
-
+        
         @Override
         public void keyReleased(KeyEvent e) {
             int keyCode = e.getKeyCode();
-            for (Controlls.Direction d : Controlls.Direction.values()) {
-                if (keyCode == d.GetKC() && dir == d.GetDir())
-                    dir = -1;
+            Controlls.Direction[] d = Controlls.Direction.values();
+            for (int i = 0; i < d.length; i++) {
+                if (keyCode == d[i].GetKC())
+                    bp[i] = false;
             }
         }
     }
