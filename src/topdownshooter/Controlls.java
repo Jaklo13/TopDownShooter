@@ -8,9 +8,14 @@ public class Controlls {
     public static int[] BUTTONS = new int[]{KeyEvent.VK_UP,KeyEvent.VK_DOWN,KeyEvent.VK_LEFT,KeyEvent.VK_RIGHT,KeyEvent.VK_W,KeyEvent.VK_S,KeyEvent.VK_A,KeyEvent.VK_D};
     
     public static Point GetMousePos () {
-        Point mp = MouseInfo.getPointerInfo().getLocation(), fp = GameManager.GM.GetWindow().getLocation();
-        Point pos = new Point (mp.x - fp.x, mp.y - fp.y);
-        return pos;
+        try {
+            Point mp = MouseInfo.getPointerInfo().getLocation(), fp = GameManager.GM.GetWindow().getLocation();
+            Point pos = new Point (mp.x - fp.x, mp.y - fp.y);
+            return pos;
+        } catch (NullPointerException e) {
+            System.out.println(e);
+            return new Point (0,0);
+        }
     }
     
 //    public static int SetMovingDirection (KeyEvent e) {
