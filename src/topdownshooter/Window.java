@@ -41,8 +41,7 @@ public class Window extends JFrame {
         addKeyListener (new KL ());
         addMouseListener (new ML ());
         setLayout (null);
-        
-        //test//
+
         GetSprites ();
         
         bp = new boolean[Controlls.BUTTONS.length];
@@ -52,9 +51,11 @@ public class Window extends JFrame {
         try {
             File file;
             sprites = new BufferedImage[spritePaths.length];
+            int i = 0;
             for (String path : spritePaths) {
                 file = new File (path);
-                sprites[0] = ImageIO.read(file);
+                sprites[i] = ImageIO.read(file);
+                i++;
             }
         } catch (Exception e) {
             e.printStackTrace ();
