@@ -42,6 +42,7 @@ public class Window extends JFrame {
         addMouseListener (new ML ());
         setLayout (null);
         
+        //test//
         GetSprites ();
         
         bp = new boolean[Controlls.BUTTONS.length];
@@ -114,8 +115,7 @@ public class Window extends JFrame {
     
     public void LookAtPoint (Point p) {
         lookDir = (float)((Math.atan2(x - p.x, y - p.y))) * -1;
-        lookDirDegree = (float)((Math.atan2(x - p.x, y - p.y) / Math.PI) * 360);
-        System.out.println (lookDir);
+        lookDirDegree = (float)((lookDir / Math.PI) * 180);
     }
     
     public void paintComponent (Graphics2D g) {
