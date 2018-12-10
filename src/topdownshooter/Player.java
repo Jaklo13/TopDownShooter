@@ -1,6 +1,5 @@
 package topdownshooter;
 
-import com.sun.glass.events.KeyEvent;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
