@@ -1,6 +1,7 @@
 package topdownshooter;
 
-import java.awt.event.KeyEvent;
+import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -17,11 +18,13 @@ public class GameManager implements Runnable{
     private ArrayList<GameObject> gObjects = new ArrayList<GameObject>();   //this keeps track of all GameObjects, so the Window can draw it
     private BufferedImage[] playerSprites = new BufferedImage[2], weaponSpeites = new BufferedImage[0];
     private ArrayList<Player> players = new ArrayList<Player>();
+    private Arena arena;
     private Window window;
     
     public GameManager () {
         GM = this;
-        window = new Window ();
+        arena = new Arena (20,10);
+        window = arena.GetWindow ();
         
         Key.InitializeKeyCodesArray();
         GetSprites ();
@@ -67,10 +70,18 @@ public class GameManager implements Runnable{
         return window;
     }
     
-    public ArrayList<GameObject>GetGameObjects () {
+    public ArrayList<GameObject> GetGameObjects () {
         return gObjects;
     }
     
+    public static final Point AddPoint (Point p1, Point p2) {
+        return new Point ((int)(p1.getX() + p2.getX()), (int)(p1.getY() + p2.getY()));
+    }
+    
+    public static final Point2D.Float AddPoint (Point2D.Float p1, Point2D.Float p2) {
+        return new Point2D.Float ((float)(p1.getX() + p2.getX()), (float)(p1.getY() + p2.getY()));
+    }
+
     public static void main(String[] args) {
         Thread t1 = new Thread(new GameManager());
         t1.start();
