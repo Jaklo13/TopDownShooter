@@ -6,15 +6,22 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
 public abstract class GameObject  {
-    private Rectangle hitBox;
-    private Point2D.Float pos;
-    private BufferedImage sprite;
-    private float rotation = 0;
+    protected Rectangle hitBox;
+    protected Point2D.Float pos;
+    protected BufferedImage sprite;
+    protected float rotation = 0;
     
-    public void GameObject (Rectangle hitBox, Point2D.Float pos, BufferedImage sprite) {
-        this.hitBox = hitBox;
+//    public void GameObject (Rectangle hitBox, Point2D.Float pos, BufferedImage sprite) {
+//        this.hitBox = hitBox;
+//        this.pos = pos;
+//        this.sprite = sprite;
+//    }
+    
+    public void GameObject (Point2D.Float pos, BufferedImage sprite) {
         this.pos = pos;
         this.sprite = sprite;
+        this.hitBox = new Rectangle (sprite.getWidth(), sprite.getHeight());
+        GameManager.GM.AddGameObject(this);
     }
     
     protected void Move (float x, float y) {
