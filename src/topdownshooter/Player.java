@@ -1,5 +1,6 @@
 package topdownshooter;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -7,16 +8,16 @@ import java.util.ArrayList;
 
 public class Player extends GameObject {
     public static final String[] DIRECTION_NAMES = new String[]{"UP","DOWN","LEFT","RIGHT"};
-    public static final Point2D.Float[] spawnPoints = new Point2D.Float[]{new Point2D.Float (100,100), new Point2D.Float (500,500)};
+    //These corrispond with the tiles in Arena
+    public static final Point[] spawnPoints = new Point[]{new Point (0,0), new Point (1,0)};
     private int pn = 0; //playerNumber
     private float speed = 5f;
     
     //construct a Player object with it`s number
     public Player (int pn, BufferedImage sprite) {
         this.pn = pn;
-        Rectangle hitBox = new Rectangle (sprite.getWidth(), sprite.getHeight());
-        Point2D.Float pos = (pn < spawnPoints.length)? spawnPoints[pn] : new Point2D.Float (0,0);
-        super.GameObject(hitBox, pos, sprite);
+        Point2D.Float pos = (pn < spawnPoints.length)? new Point2D.Float(spawnPoints[pn].x * Arena.TILE_SIZE + Arena.TILE_SIZE / 2, spawnPoints[pn].y * Arena.TILE_SIZE + Arena.TILE_SIZE / 2) : new Point2D.Float (0,0);
+        super.GameObject(pos, sprite);
     }
     
     public void Update (ArrayList<Integer> keys) {
