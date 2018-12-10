@@ -13,10 +13,12 @@ import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import javax.swing.JFrame;
 
 public class Window extends JFrame {
     public static final int BORDER_SIZE = 25, TOP_BORDER_SIZE = 20;
+    public static final Point UPPER_LEFT_CORNER = new Point (BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE);
     private int width, height;
     private ArrayList<Integer> kp = new ArrayList<Integer>(); //Keys Pressed
     
@@ -80,8 +82,7 @@ public class Window extends JFrame {
     public Point GetMousePos () {
         try {
             Point mp = MouseInfo.getPointerInfo().getLocation(), fp = getLocation();
-            Point pos = GameManager.AddPoint(mp, fp);
-//            Point pos = new Point (mp.x - fp.x, mp.y - fp.y);
+            Point pos = new Point (mp.x - fp.x + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE, mp.y - fp.y - TOP_BORDER_SIZE + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE);
             return pos;
         } catch (NullPointerException e) {
             System.out.println(e + ", GetMousePos");
@@ -101,21 +102,30 @@ public class Window extends JFrame {
         g.fillRect(BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE, width, height);
     }
     
+    //Dieser Code ist noch nicht Perfekt, sollte aber erstmal funktionieren
     public void paintGameObjects (Graphics2D g) {
-        ArrayList<GameObject> gObjects = GameManager.GM.GetGameObjects();
-        for (GameObject go : gObjects) {
-            BufferedImage sprite = go.getSprite();
-            int spriteWidth = sprite.getWidth(), spriteHeight = sprite.getHeight();
-            Point pos = new Point ();
-            pos.setLocation(go.getPos());
-            pos.setLocation (pos.getX() - spriteWidth / 2, pos.getY() - spriteHeight / 2);
-            pos.setLocation (pos.getX() + BORDER_SIZE, pos.getY() + BORDER_SIZE + TOP_BORDER_SIZE);
-            AffineTransform at = new AffineTransform ();
-            at.translate(pos.getX(), pos.getY());               //These three lines need to be read in reverse order 
-            at.rotate(go.getRotation());                        //First the Affine transform is centerd on the Image
-            at.translate(spriteWidth / -2, spriteHeight / -2);  //Then it's rotated and centered around the player position
-            g.drawImage(go.getSprite(), at, this);
-            g.fillOval((int)pos.getX(), (int)pos.getY(), 5, 5);
+        try {
+            ArrayList<GameObject> gObjects = GameManager.GM.GetGameObjects();
+            for (GameObject go : gObjects) {
+                BufferedImage sprite = go.getSprite();
+                int spriteWidth = sprite.getWidth(), spriteHeight = sprite.getHeight();
+                Point pos = new Point ();
+                pos.setLocation(go.getPos());
+                pos.setLocation (pos.getX() - spriteWidth / 2, pos.getY() - spriteHeight / 2);
+                pos.setLocation (pos.getX() + BORDER_SIZE ,pos.getY() + TOP_BORDER_SIZE);
+                pos.setLocation (pos.getX() + UPPER_LEFT_CORNER.x, pos.getY() + UPPER_LEFT_CORNER.y);
+                AffineTransform at = new AffineTransform ();
+                at.translate(pos.getX(), pos.getY());               //These three lines need to be read in reverse order 
+                at.rotate(go.getRotation());                        //First the Affine transform is centerd on the Image
+                at.translate(spriteWidth / -2, spriteHeight / -2);  //Then it's rotated and centered around the player position
+                g.drawImage(go.getSprite(), at, this);
+                
+//                g.setColor(Color.red);
+//                Point mp = MouseInfo.getPointerInfo().getLocation(), fp = getLocation();
+//                g.drawLine(pos.x, pos.y, mp.x - fp.x, mp.y - fp.y);
+            }
+        } catch (ConcurrentModificationException e) {
+            System.out.println (e + ", paintObjects");
         }
     }
     
@@ -125,7 +135,9 @@ public class Window extends JFrame {
     
     //for testing and debugging
     public void paintDebug (Graphics2D g) {
-
+//        g.setColor(Color.red);
+//        Point mp = MouseInfo.getPointerInfo().getLocation(), fp = getLocation();
+//        g.drawRect(mp.x - fp.x, mp.y - fp.y, 10,10);
     }
     
     public void paintComponent (Graphics2D g) {
