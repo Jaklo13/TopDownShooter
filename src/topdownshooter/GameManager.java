@@ -36,10 +36,14 @@ public class GameManager implements Runnable{
         try {
             Player player = (new Player (pn,playerSprites[pn]));
             players.add(player);
-            gObjects.add(player);
+//            gObjects.add(player);
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println (e + ", Invalid Player Number");
         }
+    }
+    
+    public void AddGameObject (GameObject o) {
+        gObjects.add(o);
     }
     
     private void Update () {
@@ -68,6 +72,10 @@ public class GameManager implements Runnable{
     
     public Window GetWindow () {
         return window;
+    }
+
+    public Arena GetArena() {
+        return arena;
     }
     
     public ArrayList<GameObject> GetGameObjects () {
