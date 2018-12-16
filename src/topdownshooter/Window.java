@@ -11,6 +11,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -95,11 +96,19 @@ public class Window extends JFrame {
     }
 
     //all paint methods
-    public void paintBackground (Graphics2D g) {
+    public void paintBackground (Graphics g) {
         g.setColor (Color.BLACK);
         g.fillRect(0, 0, getWidth(), getHeight());
+    }
+    
+    public void paintGround (Graphics2D g) {
         g.setColor (new Color (000,200,100));
-        g.fillRect(BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE, width, height);
+        g.fillRect(0, 0, width, height);
+        int ts = Arena.TILE_SIZE;
+        for (Point p : GameManager.GM.GetArena().getSpawnPoints()) {
+            g.setColor(Color.BLUE);
+            g.fillRect(p.x * ts, p.y * ts, ts, ts);
+        }
     }
     
     //Dieser Code ist noch nicht Perfekt, sollte aber erstmal funktionieren
@@ -108,21 +117,17 @@ public class Window extends JFrame {
             ArrayList<GameObject> gObjects = GameManager.GM.GetGameObjects();
             for (GameObject go : gObjects) {
                 BufferedImage sprite = go.getSprite();
-                int spriteWidth = sprite.getWidth(), spriteHeight = sprite.getHeight();
-                Point pos = new Point ();
-                pos.setLocation(go.getPos());
-                pos.setLocation (pos.getX() - spriteWidth / 2, pos.getY() - spriteHeight / 2);
-                pos.setLocation (pos.getX() + BORDER_SIZE ,pos.getY() + TOP_BORDER_SIZE);
-                pos.setLocation (pos.getX() + UPPER_LEFT_CORNER.x, pos.getY() + UPPER_LEFT_CORNER.y);
+                int halfWidth = (int)go.getBounds().getWidth() / 2, halfHeight = (int)go.getBounds().getWidth() / 2;
+                Point2D.Float pos = go.getPos();
                 AffineTransform at = new AffineTransform ();
-                at.translate(pos.getX(), pos.getY());               //These three lines need to be read in reverse order 
-                at.rotate(go.getRotation());                        //First the Affine transform is centerd on the Image
-                at.translate(spriteWidth / -2, spriteHeight / -2);  //Then it's rotated and centered around the player position
+                
+                at.translate(pos.getX() + halfWidth, pos.getY() + halfHeight);  //First the Affine Transform is centerd on the position
+                at.rotate(go.getRotation());                                    //Then it's rotated and centered around the Object's position
+                at.translate(-halfWidth, -halfHeight);                          
                 g.drawImage(go.getSprite(), at, this);
                 
-//                g.setColor(Color.red);
-//                Point mp = MouseInfo.getPointerInfo().getLocation(), fp = getLocation();
-//                g.drawLine(pos.x, pos.y, mp.x - fp.x, mp.y - fp.y);
+                g.setColor(Color.red);                                        //use this to see the hitboxes of all Objects                        
+                g.drawRect((int)go.bounds.x, (int)go.bounds.y, (int)go.bounds.width, (int)go.bounds.height);
             }
         } catch (ConcurrentModificationException e) {
             System.out.println (e + ", paintObjects");
@@ -135,14 +140,12 @@ public class Window extends JFrame {
     
     //for testing and debugging
     public void paintDebug (Graphics2D g) {
-//        g.setColor(Color.red);
-//        Point mp = MouseInfo.getPointerInfo().getLocation(), fp = getLocation();
-//        g.drawRect(mp.x - fp.x, mp.y - fp.y, 10,10);
+
     }
     
     public void paintComponent (Graphics2D g) {
         try { 
-            paintBackground (g);
+            paintGround (g);
             paintGameObjects (g);
             paintBullets (g);
             paintDebug (g);
@@ -156,8 +159,13 @@ public class Window extends JFrame {
     
     @Override 
     public void paint (Graphics g) {
-        Image dbImage = createImage (getWidth(),getHeight());
-        paintComponent ((Graphics2D)dbImage.getGraphics());
-        g.drawImage(dbImage, 0, 0, this);
+        try {
+            Image dbImage = createImage (width,height);
+            paintComponent ((Graphics2D)dbImage.getGraphics());
+            paintBackground (g);
+            g.drawImage(dbImage, BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE, this);
+        } catch (Exception e) {
+            System.out.println (e + ", paint");
+        }
     }
 }
