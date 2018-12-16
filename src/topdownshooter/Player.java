@@ -1,23 +1,19 @@
 package topdownshooter;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Player extends GameObject {
     public static final String[] DIRECTION_NAMES = new String[]{"UP","DOWN","LEFT","RIGHT"};
-    //These corrispond with the tiles in Arena
-    public static final Point[] spawnPoints = new Point[]{new Point (0,0), new Point (1,0)};
     private int pn = 0; //playerNumber
     private float speed = 5f;
     
     //construct a Player object with it`s number
     public Player (int pn, BufferedImage sprite) {
+        super (GameManager.GM.GetArena().GetSpawnPoint(pn), sprite);
         this.pn = pn;
-        Point2D.Float pos = (pn < spawnPoints.length)? new Point2D.Float(spawnPoints[pn].x * Arena.TILE_SIZE + Arena.TILE_SIZE / 2, spawnPoints[pn].y * Arena.TILE_SIZE + Arena.TILE_SIZE / 2) : new Point2D.Float (0,0);
-        super.GameObject(pos, sprite);
+        bounds = new Rectangle2D.Float (bounds.x,bounds.y,bounds.width, bounds.width);
     }
     
     public void Update (ArrayList<Integer> keys) {
