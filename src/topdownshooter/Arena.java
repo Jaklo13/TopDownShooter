@@ -1,5 +1,6 @@
 package topdownshooter;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
@@ -10,18 +11,28 @@ public class Arena {
     //0 - open, 1 - wall
     private int[][] tiles;
     private ArrayList<Wall> walls;
+    private ArrayList<Point> spawnPoints;
     
-    public Arena (int width, int height) {
-        this.width = width;
-        this.height = height;
-        tiles = new int[width][height];
+    public Arena (int type) {
+        CreateArena (type);
         window = new Window (width * TILE_SIZE, height * TILE_SIZE);
         
-        walls = new ArrayList<Wall>();
-        CreateOuterWall ();
+        PlaceOuterWall ();
+        PlaceTiles ();
+        CreateTiles ();
     }
     
-    public void CreateOuterWall () {
+    public void CreateArena (int type) {
+        switch (type) {
+            case 1:
+                width = 20;
+                height = 10;
+                tiles = new int[width][height];
+                break;
+        }
+    }
+    
+    public void PlaceOuterWall () {
         for (int i = 0; i < tiles.length; i++) {
             tiles[i][0] = 1;
             tiles[i][tiles[i].length-1] = 1;
@@ -30,12 +41,46 @@ public class Arena {
             tiles[0][i] = 1;
             tiles[tiles.length-1][i] = 1;
         }
+    }
+    
+    public void PlaceTiles () {
+        PlaceWall (true,new Point(3,3),5);
+        PlaceWall (true,new Point(3,6),5);
+        PlaceWall (true,new Point(12,3),5);
+        PlaceWall (true,new Point(12,6),5);
+        PlaceWall (false,new Point(9,3),4);
+        PlaceWall (false,new Point(10,3),4);
+        tiles[1][1] = 2;
+        tiles[18][8] = 2;
+    }
+    
+    public void PlaceWall (boolean horizontal, Point pos, int length) {
+        for (int i = 0; i < length; i++) {
+            tiles[pos.x + ((horizontal)?i:0)][pos.y + ((horizontal)?0:i)] = 1;
+        }
+    }
+    
+    public void CreateTiles () {
+        walls = new ArrayList<>();
+        spawnPoints = new ArrayList<>();
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[0].length; j++) {
-                if (tiles[i][j] == 1)
-                    walls.add(new Wall(new Point2D.Float(i*TILE_SIZE + TILE_SIZE / 2,j*TILE_SIZE + TILE_SIZE / 2)));
+                if (tiles[i][j] == 1) {
+                    walls.add(new Wall(new Point2D.Float(i*TILE_SIZE,j*TILE_SIZE)));
+                }
+                if (tiles[i][j] == 2) {
+                    spawnPoints.add(new Point(i,j));
+                }
             }
         }
+    }
+    
+    public Point2D.Float GetSpawnPoint (int p) {
+        return new Point2D.Float(spawnPoints.get(p).x * TILE_SIZE,spawnPoints.get(p).y * TILE_SIZE);
+    }
+    
+    public ArrayList<Point> getSpawnPoints () {
+        return spawnPoints;
     }
     
     public Window GetWindow () {
