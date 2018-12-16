@@ -1,9 +1,6 @@
 package topdownshooter;
 
-import java.awt.MouseInfo;
-import java.awt.Point;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 
 public enum Key {
     /*Du hast zwar gesagt, du willst ein Controls Object an den Spieler hängen, 
