@@ -160,10 +160,12 @@ public class Window extends JFrame {
     @Override 
     public void paint (Graphics g) {
         try {
-            Image dbImage = createImage (width,height);
-            paintComponent ((Graphics2D)dbImage.getGraphics());
-            paintBackground (g);
-            g.drawImage(dbImage, BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE, this);
+            Image dbImage = createImage (getWidth(),getHeight());
+            Image arena = createImage (width,height);
+            paintComponent ((Graphics2D)arena.getGraphics());
+            paintBackground (dbImage.getGraphics());
+            dbImage.getGraphics().drawImage(arena, BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE, this);
+            g.drawImage(dbImage, 0, 0, this);
         } catch (Exception e) {
             System.out.println (e + ", paint");
         }
