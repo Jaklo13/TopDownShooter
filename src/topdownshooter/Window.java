@@ -13,16 +13,25 @@ import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.net.Inet4Address;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.HashSet;
 import javax.swing.JFrame;
+import com.studiohartman.jamepad.*;
+
 
 public class Window extends JFrame {
     public static final int BORDER_SIZE = 25, TOP_BORDER_SIZE = 20;
     public static final Point UPPER_LEFT_CORNER = new Point (BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE);
     private int width, height;
     private ArrayList<Integer> kp = new ArrayList<Integer>(); //Keys Pressed
-    
+    //index 0 => x axis, index 1 => y axis
+
+
+    private ControllerManager cmanager;
+    private ControllerState cstate;
+
     public Window (int width, int height) {
         setTitle ("Game");
         setSize (width + BORDER_SIZE * 2, height + BORDER_SIZE * 2 + TOP_BORDER_SIZE);
@@ -36,7 +45,17 @@ public class Window extends JFrame {
         
         this.width = width;
         this.height = height;
+
+        cmanager = new ControllerManager();
+        cmanager.initSDLGamepad();
+
     }
+
+    public float[] getXboxDirections(){
+        cstate = cmanager.getState(0);
+        return new float[]{cstate.leftStickX, cstate.leftStickY};
+    }
+
     
     public class KL implements KeyListener {
         @Override
@@ -79,14 +98,14 @@ public class Window extends JFrame {
         public void mouseExited(MouseEvent e) {
         }
     }
-    
-    public Point GetMousePos () {
+
+    public Point getMousePos() {
         try {
             Point mp = MouseInfo.getPointerInfo().getLocation(), fp = getLocation();
             Point pos = new Point (mp.x - fp.x + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE, mp.y - fp.y - TOP_BORDER_SIZE + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE);
             return pos;
         } catch (NullPointerException e) {
-            System.out.println(e + ", GetMousePos");
+            System.out.println(e + ", getMousePos");
             return new Point ();
         }
     }
@@ -105,7 +124,7 @@ public class Window extends JFrame {
         g.setColor (new Color (000,200,100));
         g.fillRect(0, 0, width, height);
         int ts = Arena.TILE_SIZE;
-        for (Point p : GameManager.GM.GetArena().getSpawnPoints()) {
+        for (Point p : GameManager.GM.getArena().getSpawnPoints()) {
             g.setColor(Color.BLUE);
             g.fillRect(p.x * ts, p.y * ts, ts, ts);
         }
@@ -114,7 +133,7 @@ public class Window extends JFrame {
     //Dieser Code ist noch nicht Perfekt, sollte aber erstmal funktionieren
     public void paintGameObjects (Graphics2D g) {
         try {
-            ArrayList<GameObject> gObjects = GameManager.GM.GetGameObjects();
+            ArrayList<GameObject> gObjects = GameManager.GM.getGameObjects();
             for (GameObject go : gObjects) {
                 BufferedImage sprite = go.getSprite();
                 int halfWidth = (int)go.getBounds().getWidth() / 2, halfHeight = (int)go.getBounds().getWidth() / 2;

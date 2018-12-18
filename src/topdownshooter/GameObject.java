@@ -16,7 +16,7 @@ public abstract class GameObject  {
     public GameObject (Point2D.Float pos, BufferedImage sprite) {
         this.sprite = sprite;
         this.bounds = new Rectangle2D.Float (pos.x, pos.y, sprite.getWidth(), sprite.getHeight());
-        GameManager.GM.AddGameObject(this);
+        GameManager.GM.addGameObject(this);
     }
     
     //Moves the object by a certain amount and checks for collision

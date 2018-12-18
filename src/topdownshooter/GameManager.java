@@ -23,17 +23,19 @@ public class GameManager implements Runnable{
     
     public GameManager () {
         GM = this;
-        InitializeSprites ();
+        initializeSprites();
         arena = new Arena (1);
         window = arena.GetWindow ();
         
         Key.InitializeKeyCodesArray();
         
-        SpawnPlayer (0);
-        SpawnPlayer (1);
+        spawnPlayer(0);
+        //spawnPlayer(1);
+        Player xbox = new XboxPlayer(1, sprites[PLAYER_SPRITES][1]);
+        players.add(xbox);
     }
     
-    public void SpawnPlayer (int pn) {
+    public void spawnPlayer(int pn) {
         try {
             Player player = (new Player (pn,sprites[PLAYER_SPRITES][pn]));
             players.add(player);
@@ -41,23 +43,26 @@ public class GameManager implements Runnable{
             System.out.println (e + ", Invalid Player Number");
         }
     }
+
+
     
-    public void AddGameObject (GameObject o) {
+    public void addGameObject(GameObject o) {
         gObjects.add(o);
     }
     
-    private void Update () {
+    private void update() {
         ArrayList<Integer> keys = window.GetKp();
-        UpdatePlayers (keys);
+        updatePlayers(keys);
     }
     
-    public void UpdatePlayers (ArrayList<Integer> keys) {
+    public void updatePlayers(ArrayList<Integer> keys) {
         for (Player p : players) {
-            p.Update (keys);
+
+            p.Update();
         }
     }
     
-    public void InitializeSprites () {
+    public void initializeSprites() {
         try {
             for (int i = 0; i < sprites.length; i++){
                 for (int j = 0; j < sprites[i].length; j++) {
@@ -70,15 +75,15 @@ public class GameManager implements Runnable{
         }
     }
     
-    public Window GetWindow () {
+    public Window getWindow() {
         return window;
     }
 
-    public Arena GetArena() {
+    public Arena getArena() {
         return arena;
     }
     
-    public ArrayList<GameObject> GetGameObjects () {
+    public ArrayList<GameObject> getGameObjects() {
         return gObjects;
     }
     
@@ -92,15 +97,15 @@ public class GameManager implements Runnable{
         return intersectedObjects;
     }
     
-    public static BufferedImage[][] GetSprites () {
+    public static BufferedImage[][] getSprites() {
         return sprites;
     }
     
-    public static BufferedImage[] GetSpriteType (int type) {
+    public static BufferedImage[] getSpriteType(int type) {
         return sprites[type];
     }
     
-    public static BufferedImage GetSprite (int type, int nr) {
+    public static BufferedImage getSprite (int type, int nr) {
         return sprites[type][nr];
     }
     
@@ -113,7 +118,7 @@ public class GameManager implements Runnable{
     public void run() {
         try {
             while (true) {
-                Update ();
+                update();
                 
                 Thread.sleep (16);
             }
