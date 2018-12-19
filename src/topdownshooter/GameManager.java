@@ -15,7 +15,7 @@ public class GameManager implements Runnable{
             new String[] {"Wall.png"}};
     public static final int PLAYER_SPRITES = 0, WEAPON_SPRITES = 1, ITEM_SPRITES = 2, WALL_SPRITES = 3; //use as the first pointer in the allSprites array
     public static GameManager GM;
-    private static BufferedImage[][] sprites = new BufferedImage[][]{new BufferedImage[spriteNames[0].length], new BufferedImage[spriteNames[1].length], new BufferedImage[spriteNames[2].length], new BufferedImage[spriteNames[3].length]} ;
+    public BufferedImage[][] sprites = new BufferedImage[][]{new BufferedImage[spriteNames[0].length], new BufferedImage[spriteNames[1].length], new BufferedImage[spriteNames[2].length], new BufferedImage[spriteNames[3].length]} ;
     private ArrayList<GameObject> gObjects = new ArrayList<>();   //this keeps track of all GameObjects, so the Window can draw it
     private ArrayList<Player> players = new ArrayList<>();
     private Arena arena;
@@ -28,34 +28,40 @@ public class GameManager implements Runnable{
         window = arena.GetWindow ();
         
         Key.InitializeKeyCodesArray();
-        
-        spawnPlayer(0);
+
+        new Player(0);
+        new XboxPlayer(1);
+
+        //spawnPlayer(0);
         //spawnPlayer(1);
-        Player xbox = new XboxPlayer(1, sprites[PLAYER_SPRITES][1]);
-        players.add(xbox);
+        //Player xbox = new XboxPlayer(1, sprites[PLAYER_SPRITES][1]);
+        //players.add(xbox);
     }
     
-    public void spawnPlayer(int pn) {
+    /*public void spawnPlayer(int pn) {
         try {
             Player player = (new Player (pn,sprites[PLAYER_SPRITES][pn]));
             players.add(player);
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println (e + ", Invalid Player Number");
         }
-    }
+    }*/
 
 
     
     public void addGameObject(GameObject o) {
         gObjects.add(o);
     }
-    
+
+    public void addPlayer(Player p){
+        players.add(p);
+    }
+
     private void update() {
-        ArrayList<Integer> keys = window.GetKp();
-        updatePlayers(keys);
+        updatePlayers();
     }
     
-    public void updatePlayers(ArrayList<Integer> keys) {
+    public void updatePlayers() {
         for (Player p : players) {
 
             p.Update();
@@ -97,15 +103,15 @@ public class GameManager implements Runnable{
         return intersectedObjects;
     }
     
-    public static BufferedImage[][] getSprites() {
+    public  BufferedImage[][] getSprites() {
         return sprites;
     }
     
-    public static BufferedImage[] getSpriteType(int type) {
+    public  BufferedImage[] getSpriteType(int type) {
         return sprites[type];
     }
     
-    public static BufferedImage getSprite (int type, int nr) {
+    public  BufferedImage getSprite (int type, int nr) {
         return sprites[type][nr];
     }
     

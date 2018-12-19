@@ -51,9 +51,13 @@ public class Window extends JFrame {
 
     }
 
-    public float[] getXboxDirections(){
+    public float[] getXboxDirectionsLeft(){
         cstate = cmanager.getState(0);
         return new float[]{cstate.leftStickX, cstate.leftStickY};
+    }
+
+    public float[] getXboxDirectionsRight(){ //doesnt get a new state because its always called directly after getXboxDirectionsLeft()
+        return new float[]{cstate.rightStickX, cstate.rightStickY}; // => avoids double reading
     }
 
     
@@ -99,14 +103,13 @@ public class Window extends JFrame {
         }
     }
 
-    public Point getMousePos() {
+    public Point2D.Float getMousePos() {
         try {
             Point mp = MouseInfo.getPointerInfo().getLocation(), fp = getLocation();
-            Point pos = new Point (mp.x - fp.x + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE, mp.y - fp.y - TOP_BORDER_SIZE + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE);
-            return pos;
+            return new Point2D.Float(mp.x - fp.x + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE, mp.y - fp.y - TOP_BORDER_SIZE + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE);
         } catch (NullPointerException e) {
             System.out.println(e + ", getMousePos");
-            return new Point ();
+            return new Point2D.Float ();
         }
     }
 
@@ -135,7 +138,7 @@ public class Window extends JFrame {
         try {
             ArrayList<GameObject> gObjects = GameManager.GM.getGameObjects();
             for (GameObject go : gObjects) {
-                BufferedImage sprite = go.getSprite();
+                //BufferedImage sprite = go.getSprite();
                 int halfWidth = (int)go.getBounds().getWidth() / 2, halfHeight = (int)go.getBounds().getWidth() / 2;
                 Point2D.Float pos = go.getPos();
                 AffineTransform at = new AffineTransform ();

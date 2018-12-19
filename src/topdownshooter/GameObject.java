@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public abstract class GameObject  {
-    public static final int TOP = 1, BOTTOM = 2, LEFT = 4, RIGHT = 8;
+    /*changed to binary notation to make easier to understand
+    * also changed data type to byte to free up some ram*/
+    public static final byte TOP = 0b1, BOTTOM = 0b10, LEFT = 0b100, RIGHT = 0b1000;
     protected Rectangle2D.Float bounds; //This contains both the size of the hitBox and the position
     protected BufferedImage sprite;
     protected float rotation = 0;
@@ -27,7 +29,9 @@ public abstract class GameObject  {
         Rectangle2D.Float inter;
         int relevantSides = DetermineRelevantSides (x,y),adjustAxis;
         float newValue;
-        
+
+        /*Encountered a bug where players can disappear if they walk against each other*/
+
         int i,maxAttempts = 100;                                //I have encountered a rare bug where, if both Players walk diagonal into each other, sometimes this loop never breaks.
         for (i = 0; i < maxAttempts; i++) {                     //I might look into this later, but this makes the code safer than a while(true) loop would anyway
             inter = new Rectangle2D.Float(newPos.x,newPos.y,bounds.width,bounds.height);  //Sets the Rectangle, where it would be
@@ -120,7 +124,7 @@ public abstract class GameObject  {
         bounds.setFrame(pos.x, pos.y, bounds.width, bounds.height);
     }
     
-    public void LookAtPoint (Point p) {
+    public void LookAtPoint (Point2D.Float p) {
         Point2D.Float rotCenter = new Point2D.Float (bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);    //Setting the center, around wich the Object is rotated
         rotation = (float)((Math.atan2(rotCenter.getX() - p.getX(), rotCenter.getY() - p.getY()))) * -1;
     }

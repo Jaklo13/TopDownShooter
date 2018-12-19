@@ -1,23 +1,29 @@
 package topdownshooter;
 
-import java.awt.geom.Rectangle2D;
+import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashSet;
 
 public class XboxPlayer extends Player {
 
-    public XboxPlayer (int pn, BufferedImage sprite) {
-        super (pn, sprite);
+    public XboxPlayer (int pn) {
+        super (pn);
     }
 
     @Override
     public void Update(){
-        moveXBOX(GameManager.GM.getWindow().getXboxDirections());
+        moveXBOX(GameManager.GM.getWindow().getXboxDirectionsLeft());
+        LookAtDirection(GameManager.GM.getWindow().getXboxDirectionsRight());
     }
 
-    private void LookAtDirection(){
+    private void LookAtDirection(float[] directions){
 
+        Point2D.Float myPoint = getPos();
+
+            myPoint.x += directions[0] * 100f;
+            myPoint.y += directions[1] * -100f;
+
+        super.LookAtPoint(myPoint);
     }
 
     private void moveXBOX(float[] directions){
@@ -27,7 +33,7 @@ public class XboxPlayer extends Player {
         {
             move(directions[0] * speed, directions[1] * -speed);
         }
-        System.out.println(directions[0] + " " + directions[1]);
+        //System.out.println(directions[0] + " " + directions[1]);
     }
 
 }
