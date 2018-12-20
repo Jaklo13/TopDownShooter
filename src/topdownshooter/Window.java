@@ -3,8 +3,6 @@ package topdownshooter;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -12,18 +10,21 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.net.Inet4Address;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
-import java.util.HashSet;
 import javax.swing.JFrame;
 import com.studiohartman.jamepad.*;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import javax.swing.*;
 
 
-public class Window extends JFrame {
+public class Window {
     public static final int BORDER_SIZE = 25, TOP_BORDER_SIZE = 20;
     public static final Point UPPER_LEFT_CORNER = new Point (BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE);
+    private JFrame jFrame;
     private int width, height;
     private ArrayList<Integer> kp = new ArrayList<Integer>(); //Keys Pressed
     //index 0 => x axis, index 1 => y axis
@@ -33,22 +34,44 @@ public class Window extends JFrame {
     private ControllerState cstate;
 
     public Window (int width, int height) {
-        setTitle ("Game");
-        setSize (width + BORDER_SIZE * 2, height + BORDER_SIZE * 2 + TOP_BORDER_SIZE);
-        setVisible (true);
-        setResizable (false);
-        setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo (null);
-        addKeyListener (new KL ());
-        addMouseListener (new ML ());
-        setLayout (null);
-        
+        SwingUtilities.invokeLater(new Runnable () {
+            @Override
+            public void run() {
+                CreateWindow ();
+            }
+        });
+//        setTitle ("Game");
+//        setSize (width + BORDER_SIZE * 2, height + BORDER_SIZE * 2 + TOP_BORDER_SIZE);
+//        setVisible (true);
+//        setResizable (false);
+//        setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
+//        setLocationRelativeTo (null);
+//        addKeyListener (new KL ());
+//        addMouseListener (new ML ());
+//        setLayout (null);
+//        
+//        
+//        Drawing drawing = new Drawing (this.getBounds());
+//        this.add(drawing);
+//        drawing.paint(drawing.getGraphics());
+//        
         this.width = width;
         this.height = height;
 
         cmanager = new ControllerManager();
         cmanager.initSDLGamepad();
 
+    }
+    
+    public void CreateWindow () {
+        jFrame = new JFrame ();
+        jFrame.setTitle ("Game");
+        jFrame.setResizable(false);
+        jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jFrame.setVisible(true);
+        jFrame.setLocationRelativeTo (null);
+        jFrame.add (new Drawing (width,height));
+        jFrame.pack();
     }
 
     public float[] getXboxDirectionsLeft(){
@@ -61,19 +84,19 @@ public class Window extends JFrame {
     }
 
     
-    public class KL implements KeyListener {
-        @Override
-        public void keyTyped(KeyEvent e) {
-        }
-        @Override
-        public void keyPressed(KeyEvent e) {
-            AddPressedKey (e.getKeyCode());
-        }
-        @Override
-        public void keyReleased(KeyEvent e) {
-            RemovePressedKey (e.getKeyCode());
-        }
-    }
+//    public class KL implements KeyListener {
+//        @Override
+//        public void keyTyped(KeyEvent e) {
+//        }
+//        @Override
+//        public void keyPressed(KeyEvent e) {
+//            AddPressedKey (e.getKeyCode());
+//        }
+//        @Override
+//        public void keyReleased(KeyEvent e) {
+//            RemovePressedKey (e.getKeyCode());
+//        }
+//    }
     
     public void AddPressedKey (int keyCode) {
         if (!kp.contains(keyCode))
@@ -85,28 +108,34 @@ public class Window extends JFrame {
             kp.remove(new Integer (keyCode));
     }
     
-    public class ML implements MouseListener {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-        }
-        @Override
-        public void mousePressed(MouseEvent e) {
-        }
-        @Override
-        public void mouseReleased(MouseEvent e) {
-        }
-        @Override
-        public void mouseEntered(MouseEvent e) {
-        }
-        @Override
-        public void mouseExited(MouseEvent e) {
-        }
-    }
+//    public class MouL implements MouseListener {
+//        @Override
+//        public void mouseClicked(MouseEvent e) {
+//        }
+//        @Override
+//        public void mousePressed(MouseEvent e) {
+//        }
+//        @Override
+//        public void mouseReleased(MouseEvent e) {
+//        }
+//        @Override
+//        public void mouseEntered(MouseEvent e) {
+//        }
+//        @Override
+//        public void mouseExited(MouseEvent e) {
+//        }
+//    }
+    
+//    public class MotListener implements MotionListener () {
+//    
+//    }
 
     public Point2D.Float getMousePos() {
         try {
-            Point mp = MouseInfo.getPointerInfo().getLocation(), fp = getLocation();
-            return new Point2D.Float(mp.x - fp.x + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE, mp.y - fp.y - TOP_BORDER_SIZE + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE);
+//            Point mp = MouseInfo.getPointerInfo().getLocation(), fp = getLocation();
+//            return new Point2D.Float(mp.x - fp.x + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE, mp.y - fp.y - TOP_BORDER_SIZE + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE);
+            
+            return null;
         } catch (NullPointerException e) {
             System.out.println(e + ", getMousePos");
             return new Point2D.Float ();
@@ -120,7 +149,7 @@ public class Window extends JFrame {
     //all paint methods
     public void paintBackground (Graphics g) {
         g.setColor (Color.BLACK);
-        g.fillRect(0, 0, getWidth(), getHeight());
+//        g.fillRect(0, 0, getWidth(), getHeight());
     }
     
     public void paintGround (Graphics2D g) {
@@ -146,7 +175,7 @@ public class Window extends JFrame {
                 at.translate(pos.getX() + halfWidth, pos.getY() + halfHeight);  //First the Affine Transform is centerd on the position
                 at.rotate(go.getRotation());                                    //Then it's rotated and centered around the Object's position
                 at.translate(-halfWidth, -halfHeight);                          
-                g.drawImage(go.getSprite(), at, this);
+//                g.drawImage(go.getSprite(), at, this);
                 
                 g.setColor(Color.red);                                        //use this to see the hitboxes of all Objects                        
                 g.drawRect((int)go.bounds.x, (int)go.bounds.y, (int)go.bounds.width, (int)go.bounds.height);
@@ -165,8 +194,44 @@ public class Window extends JFrame {
 
     }
     
-    public void paintComponent (Graphics2D g) {
-        try { 
+//    public void paintComponent (Graphics2D g) {
+//        try { 
+//            paintGround (g);
+//            paintGameObjects (g);
+//            paintBullets (g);
+//            paintDebug (g);
+//            
+//        } catch (NullPointerException e) {
+//            System.out.println(e + ", paintComponent");
+//        }
+//        
+////        repaint ();
+//    }
+    
+//    @Override 
+//    public void paint (Graphics g) {
+//        try {
+//            Image dbImage = createImage (width,height);
+//            paintComponent ((Graphics2D)dbImage.getGraphics());
+////            paintBackground (g);
+//            g.drawImage(dbImage, BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE, this);
+//        } catch (Exception e) {
+//            System.out.println (e + ", paint");
+//        }
+//    }
+    
+    public class Drawing extends JPanel {
+        int x = 0;
+        
+        public Drawing (int width, int height) {
+            setBackground (Color.LIGHT_GRAY);
+            setBorder (BorderFactory.createLineBorder(Color.BLACK, 10));
+            setPreferredSize(new Dimension (width,height));
+            addMouseListener (new MA());
+        }
+        
+        public void paintEverything (Graphics2D g) {
+            try { 
             paintGround (g);
             paintGameObjects (g);
             paintBullets (g);
@@ -177,17 +242,25 @@ public class Window extends JFrame {
         }
         
         repaint ();
+        }
+        
+        @Override
+        public void paintComponent (Graphics g) {
+            try {
+                Image dbImage = createImage (width,height);
+                paintEverything ((Graphics2D)dbImage.getGraphics());
+    //            paintBackground (g);
+                g.drawImage(dbImage, 0, 0, this);
+            } catch (Exception e) {
+                System.out.println (e + ", paint");
+            }
+        }
     }
     
-    @Override 
-    public void paint (Graphics g) {
-        try {
-            Image dbImage = createImage (width,height);
-            paintComponent ((Graphics2D)dbImage.getGraphics());
-            paintBackground (g);
-            g.drawImage(dbImage, BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE, this);
-        } catch (Exception e) {
-            System.out.println (e + ", paint");
+    public class MA extends MouseAdapter {
+        @Override
+        public void mouseClicked (MouseEvent e) {
+            System.out.println ("test");
         }
     }
 }
