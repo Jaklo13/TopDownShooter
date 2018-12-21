@@ -1,6 +1,5 @@
 package topdownshooter;
 
-import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -8,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public abstract class GameObject  {
-    /*changed to binary notation to make easier to understand
-    * also changed data type to byte to free up some ram*/
     public static final byte TOP = 0b1, BOTTOM = 0b10, LEFT = 0b100, RIGHT = 0b1000;
     protected Rectangle2D.Float bounds; //This contains both the size of the hitBox and the position
     protected BufferedImage sprite;
@@ -23,11 +20,11 @@ public abstract class GameObject  {
     
     //Moves the object by a certain amount and checks for collision
     //This requires the Object to be moved less than the size of it's own hitbox
-    protected void Move (float x, float y) {
+    protected void move (float x, float y) {
         Point2D.Float newPos = new Point2D.Float (bounds.x + x, bounds.y + y);
         ArrayList<GameObject> iObj;
         Rectangle2D.Float inter;
-        int relevantSides = DetermineRelevantSides (x,y),adjustAxis;
+        int relevantSides = determineRelevantSides (x,y),adjustAxis;
         float newValue;
 
         /*Encountered a bug where players can disappear if they walk against each other*/
@@ -35,14 +32,14 @@ public abstract class GameObject  {
         int i,maxAttempts = 100;                                //I have encountered a rare bug where, if both Players walk diagonal into each other, sometimes this loop never breaks.
         for (i = 0; i < maxAttempts; i++) {                     //I might look into this later, but this makes the code safer than a while(true) loop would anyway
             inter = new Rectangle2D.Float(newPos.x,newPos.y,bounds.width,bounds.height);  //Sets the Rectangle, where it would be
-            iObj = GameManager.GM.IntersectsAny (inter);        //Find all other Objects
-            RemoveThis (iObj);                                  //Removes itself from the list
+            iObj = GameManager.GM.intersectsAny (inter);        //Find all other Objects
+            removeThis (iObj);                                  //Removes itself from the list
             if (iObj.isEmpty())                                 //If the list is empty, it can move
                 break;
             for (GameObject go : iObj) {
                 inter = new Rectangle2D.Float(newPos.x,newPos.y,bounds.width,bounds.height);
                 Rectangle2D.intersect (inter, go.bounds,inter);    //Finds the part that intersects and saves it into inter
-                adjustAxis = ChooseAxisToAdjust (relevantSides, (newPos.x - bounds.x), (newPos.y - bounds.y), go, inter);   //1 = horizontal, -1 = vertical
+                adjustAxis = chooseAxisToAdjust (relevantSides, (newPos.x - bounds.x), (newPos.y - bounds.y), go, inter);   //1 = horizontal, -1 = vertical
                 if (adjustAxis == 1) {
                     newValue = (Math.abs(x) / x) * (Math.abs(x) - inter.width);
                     newPos = new Point2D.Float (bounds.x + newValue, newPos.y);
@@ -56,11 +53,11 @@ public abstract class GameObject  {
         }
         if (i >= maxAttempts)
             System.out.println ("Could not move correctly, max attempts reached");
-        this.MoveTo (newPos);
+        this.moveTo (newPos);
     }
     
     //Takes an array of GameObjects and removes itself from it
-    public void RemoveThis (ArrayList<GameObject> o) {
+    public void removeThis (ArrayList<GameObject> o) {
         Iterator<GameObject> iter = o.iterator();
         while (iter.hasNext()) {
             GameObject go = iter.next();
@@ -70,7 +67,7 @@ public abstract class GameObject  {
         }
     }
     
-    public int DetermineRelevantSides (float x, float y) {
+    public int determineRelevantSides (float x, float y) {
         int relevantSides = 0;                          //Determine the sides of the hitbox it could move into.
         if (y != 0)                                     //e.g. if this moves straight up, it can only hit the bottom of an Object
             relevantSides |= (y > 0)? TOP : BOTTOM;    
@@ -79,17 +76,17 @@ public abstract class GameObject  {
         return relevantSides;
     }
     
-    public int ChooseAxisToAdjust (int sides, float x, float y, GameObject go, Rectangle2D.Float inter) {
+    public int chooseAxisToAdjust (int sides, float x, float y, GameObject go, Rectangle2D.Float inter) {
         Point2D.Float p2 = go.getPos();
         Rectangle2D.Float r = go.getBounds();
         
-        sides = SidesOnGameObjectSides (sides, r, inter);       //Removes all sides, that aren't on the side os the GameObject
+        sides = sidesOnGameObjectSides (sides, r, inter);       //Removes all sides, that aren't on the side os the GameObject
         if (Integer.bitCount(sides) == 1)                       //If there is only one side, it is returned
-            return IsHorizontal(sides)?1:-1;
+            return isHorizontal(sides)?1:-1;
         return (inter.width == Math.abs(x) && inter.height == Math.abs(y))?0:((inter.height > Math.abs(y))?1:-1);
     }
     
-    public boolean IsHorizontal (int side) {
+    public boolean isHorizontal (int side) {
         if (Integer.bitCount(side) != 1) {
             System.out.println ("Error, more than one side");
             return false;
@@ -99,7 +96,7 @@ public abstract class GameObject  {
     }
     
     //Checks, of all sides, which are on the the side of an Object and removes the ones that aren't
-    public int SidesOnGameObjectSides (int sides, Rectangle2D.Float go, Rectangle2D.Float inter) {
+    public int sidesOnGameObjectSides (int sides, Rectangle2D.Float go, Rectangle2D.Float inter) {
         if ((sides & TOP) == TOP) {
             if (go.y < inter.y)
                 sides &= ~TOP;
@@ -120,13 +117,8 @@ public abstract class GameObject  {
     }
     
     //Teleports the object to a certain position
-    protected void MoveTo (Point2D.Float pos) {
+    protected void moveTo (Point2D.Float pos) {
         bounds.setFrame(pos.x, pos.y, bounds.width, bounds.height);
-    }
-    
-    public void LookAtPoint (Point2D.Float p) {
-        Point2D.Float rotCenter = new Point2D.Float (bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);    //Setting the center, around wich the Object is rotated
-        rotation = (float)((Math.atan2(rotCenter.getX() - p.getX(), rotCenter.getY() - p.getY()))) * -1;
     }
 
     public Rectangle2D.Float getBounds () {
