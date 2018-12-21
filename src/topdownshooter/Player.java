@@ -1,10 +1,8 @@
 package topdownshooter;
 
-import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Player extends GameObject {
     public static final String[] DIRECTION_NAMES = new String[]{"UP","DOWN","LEFT","RIGHT"};
@@ -13,30 +11,29 @@ public class Player extends GameObject {
     
     //construct a Player object with it`s number
     public Player (int pn) {
-        super (GameManager.GM.getArena().GetSpawnPoint(pn), GameManager.GM.sprites[0][pn]);
+        super (GameManager.GM.getArena().getSpawnPoint(pn), GameManager.GM.getSprite(GameManager.PLAYER_SPRITES,pn));
         this.pn = pn;
         bounds = new Rectangle2D.Float (bounds.x,bounds.y,bounds.width, bounds.width);
-        GameManager.GM.addPlayer(this);
     }
     
-    public void Update (/*ArrayList<Integer> keys*/) {
-        move(GameManager.GM.getWindow().GetKp());
-        LookAtPoint(GameManager.GM.getWindow().getMousePos());
+    public void update () {
+        move(GameManager.GM.getKp());
+        lookAtPoint(GameManager.GM.getWindow().getMousePos());
     }
 
-    @Override
-    public void LookAtPoint(Point2D.Float p){
-        super.LookAtPoint(p);
+    public void lookAtPoint(Point2D.Float p){
+        Point2D.Float rotCenter = new Point2D.Float (bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);    //Setting the center, around wich the Object is rotated
+        rotation = (float)((Math.atan2(rotCenter.getX() - p.getX(), rotCenter.getY() - p.getY()))) * -1;
     }
     
     //This compares the PressedKeys from Window with the the Keys for the 
     //PlayerNumber to determine the Direction
-    public void move(ArrayList<Integer> keys) {
+    public void move(HashSet<Integer> keys) {
         boolean[] dir = new boolean[4];
         for (int i = 0; i < dir.length; i++) {
-            dir[i] = (keys.contains(Key.valueOf(DIRECTION_NAMES[i] + pn).GetKeyCode()));
+            dir[i] = (keys.contains(Key.valueOf(DIRECTION_NAMES[i] + pn).getKeyCode()));
         }
-
+        
         float dx = 0;
         float dy = 0;
 
@@ -51,21 +48,11 @@ public class Player extends GameObject {
         dx *= mySpeed;
         dy *= mySpeed;
 
-        Move(dx, dy);
-
-       /* boolean vertical = (dir[0] != dir[1]), horizontal = (dir[2] != dir[3]), diagonal = (vertical && horizontal);
-        if (diagonal) {
-            float localSpeed = (float)Math.sqrt(Math.pow(speed,2) / 2);
-            move ((dir[2])? -localSpeed : localSpeed, (dir[0])? -localSpeed : localSpeed);
-        } else if (vertical) {
-            move (0,(dir[0])? -speed : speed);
-        } else if (horizontal) {
-            move ((dir[2])? -speed : speed,0);*/
-
+        super.move(dx, dy);
     }
 
     public void move(float x, float y){
-        super.Move(x, y);
+        super.move(x, y);
     }
     
     public void Shoot () {
