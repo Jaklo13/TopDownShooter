@@ -14,15 +14,15 @@ public class Arena {
     private ArrayList<Point> spawnPoints;
     
     public Arena (int type) {
-        CreateArena (type);
+        createArena (type);
         window = new Window (width * TILE_SIZE, height * TILE_SIZE);
         
-        PlaceOuterWall ();
-        PlaceTiles ();
-        CreateTiles ();
+        placeOuterWall ();
+        placeTiles ();
+        createTiles ();
     }
     
-    public void CreateArena (int type) {
+    public void createArena (int type) {
         switch (type) {
             case 1:
                 width = 20;
@@ -32,7 +32,7 @@ public class Arena {
         }
     }
     
-    public void PlaceOuterWall () {
+    public void placeOuterWall () {
         for (int i = 0; i < tiles.length; i++) {
             tiles[i][0] = 1;
             tiles[i][tiles[i].length-1] = 1;
@@ -43,24 +43,24 @@ public class Arena {
         }
     }
     
-    public void PlaceTiles () {
-        PlaceWall (true,new Point(3,3),5);
-        PlaceWall (true,new Point(3,6),5);
-        PlaceWall (true,new Point(12,3),5);
-        PlaceWall (true,new Point(12,6),5);
-        PlaceWall (false,new Point(9,3),4);
-        PlaceWall (false,new Point(10,3),4);
+    public void placeTiles () {
+        placeWall (true,new Point(3,3),5);
+        placeWall (true,new Point(3,6),5);
+        placeWall (true,new Point(12,3),5);
+        placeWall (true,new Point(12,6),5);
+        placeWall (false,new Point(9,3),4);
+        placeWall (false,new Point(10,3),4);
         tiles[1][1] = 2;
         tiles[18][8] = 2;
     }
     
-    public void PlaceWall (boolean horizontal, Point pos, int length) {
+    public void placeWall (boolean horizontal, Point pos, int length) {
         for (int i = 0; i < length; i++) {
             tiles[pos.x + ((horizontal)?i:0)][pos.y + ((horizontal)?0:i)] = 1;
         }
     }
     
-    public void CreateTiles () {
+    public void createTiles () {
         walls = new ArrayList<>();
         spawnPoints = new ArrayList<>();
         for (int i = 0; i < tiles.length; i++) {
@@ -73,9 +73,10 @@ public class Arena {
                 }
             }
         }
+        window.setBackgroundImage (this);
     }
     
-    public Point2D.Float GetSpawnPoint (int p) {
+    public Point2D.Float getSpawnPoint (int p) {
         return new Point2D.Float(spawnPoints.get(p).x * TILE_SIZE,spawnPoints.get(p).y * TILE_SIZE);
     }
     
@@ -83,7 +84,11 @@ public class Arena {
         return spawnPoints;
     }
     
-    public Window GetWindow () {
+    public Window getWindow () {
         return window;
+    }
+    
+    public ArrayList<Wall> getWalls () {
+        return walls;
     }
 }
