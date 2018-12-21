@@ -4,20 +4,22 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import javax.imageio.ImageIO;
 
 public class GameManager implements Runnable{
-    public static final String assetsPath = "src\\Assets\\";
-    public static final String[][] spriteNames = new String[][]{
+    public static final String ASSETS_PATH = "src\\Assets\\";
+    public static final String[][] SPRITE_NAMES = new String[][]{
             new String[] {"PlayerSprite1.png","PlayerSprite2.png"},
             new String[] {"Pistol.png","Rifle.png"},
             new String[] {},
             new String[] {"Wall.png"}};
     public static final int PLAYER_SPRITES = 0, WEAPON_SPRITES = 1, ITEM_SPRITES = 2, WALL_SPRITES = 3; //use as the first pointer in the allSprites array
     public static GameManager GM;
-    public BufferedImage[][] sprites = new BufferedImage[][]{new BufferedImage[spriteNames[0].length], new BufferedImage[spriteNames[1].length], new BufferedImage[spriteNames[2].length], new BufferedImage[spriteNames[3].length]} ;
+    private BufferedImage[][] sprites = new BufferedImage[][]{new BufferedImage[SPRITE_NAMES[0].length], new BufferedImage[SPRITE_NAMES[1].length], new BufferedImage[SPRITE_NAMES[2].length], new BufferedImage[SPRITE_NAMES[3].length]} ;
     private ArrayList<GameObject> gObjects = new ArrayList<>();   //this keeps track of all GameObjects, so the Window can draw it
     private ArrayList<Player> players = new ArrayList<>();
+    private HashSet<Integer> kp = new HashSet<>();  //Keys pressed
     private Arena arena;
     private Window window;
     
@@ -25,29 +27,22 @@ public class GameManager implements Runnable{
         GM = this;
         initializeSprites();
         arena = new Arena (1);
-        window = arena.GetWindow ();
+        window = arena.getWindow ();
         
-        Key.InitializeKeyCodesArray();
-
-        new Player(0);
-        new XboxPlayer(1);
-
-        //spawnPlayer(0);
-        //spawnPlayer(1);
-        //Player xbox = new XboxPlayer(1, sprites[PLAYER_SPRITES][1]);
-        //players.add(xbox);
+        Key.initializeKeyCodesArray();
+        
+        spawnPlayer(0, false);
+        spawnPlayer(1, true);
     }
     
-    /*public void spawnPlayer(int pn) {
+    public void spawnPlayer(int pn, boolean isXbox) {
         try {
-            Player player = (new Player (pn,sprites[PLAYER_SPRITES][pn]));
+            Player player = (isXbox)? new XboxPlayer (pn) : new Player (pn);
             players.add(player);
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println (e + ", Invalid Player Number");
         }
-    }*/
-
-
+    }
     
     public void addGameObject(GameObject o) {
         gObjects.add(o);
@@ -59,12 +54,13 @@ public class GameManager implements Runnable{
 
     private void update() {
         updatePlayers();
+//        System.out.println (kp.size());
     }
     
     public void updatePlayers() {
         for (Player p : players) {
 
-            p.Update();
+            p.update();
         }
     }
     
@@ -72,13 +68,23 @@ public class GameManager implements Runnable{
         try {
             for (int i = 0; i < sprites.length; i++){
                 for (int j = 0; j < sprites[i].length; j++) {
-                    File file = new File (assetsPath + spriteNames[i][j]);
+                    File file = new File (ASSETS_PATH + SPRITE_NAMES[i][j]);
                     sprites[i][j] = ImageIO.read(file);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace ();
         }
+    }
+    
+    public ArrayList<GameObject> intersectsAny (Rectangle2D.Float r) {
+        ArrayList<GameObject> intersectedObjects = new ArrayList<>();
+        for (GameObject g : gObjects) {
+            if (r.intersects(g.getBounds())) {
+                intersectedObjects.add(g);
+            }
+        }
+        return intersectedObjects;
     }
     
     public Window getWindow() {
@@ -92,15 +98,17 @@ public class GameManager implements Runnable{
     public ArrayList<GameObject> getGameObjects() {
         return gObjects;
     }
+
+    public HashSet<Integer> getKp() {
+        return kp;
+    }
+
+    public void addKp(int k) {
+        kp.add(k);
+    }
     
-    public ArrayList<GameObject> IntersectsAny (Rectangle2D.Float r) {
-        ArrayList<GameObject> intersectedObjects = new ArrayList<>();
-        for (GameObject g : gObjects) {
-            if (r.intersects(g.getBounds())) {
-                intersectedObjects.add(g);
-            }
-        }
-        return intersectedObjects;
+    public void removeKp (int k) {
+        kp.remove (k);
     }
     
     public  BufferedImage[][] getSprites() {
