@@ -2,8 +2,10 @@ package topdownshooter;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.IllegalComponentStateException;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import javax.swing.JFrame;
@@ -20,6 +22,8 @@ public class Window {
     private int width, height;
     //index 0 => x axis, index 1 => y axis
 
+    public static ArrayList<Line2D.Float> lines = new ArrayList<>();
+    public static ArrayList<Point2D.Float> points = new ArrayList<>();
 
 //    private ControllerManager cmanager;
 //    private ControllerState cstate;
@@ -44,7 +48,8 @@ public class Window {
         jFrame.setResizable(false);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setVisible(true);
-        jFrame.add (new Panel(this));
+//        Panel p = new Panel (this);
+        jFrame.add (new Panel (this));
         jFrame.pack();
         jFrame.setLocationRelativeTo (null);
     }
@@ -76,11 +81,16 @@ public class Window {
         return new Point2D.Float (width, height);
     }
     
+    public float getDiagonal () {
+        return (float)Math.sqrt(Math.pow(width,2) + Math.pow(height, 2));
+    }
+    
+    //This is relative to the upper left corner of the panel
     public Point2D.Float getMousePos() {
         try {
-            Point mp = MouseInfo.getPointerInfo().getLocation(), fp = jFrame.getLocation();
-            return new Point2D.Float(mp.x - fp.x + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE, mp.y - fp.y - TOP_BORDER_SIZE + UPPER_LEFT_CORNER.x - Arena.TILE_SIZE);
-        } catch (NullPointerException e) {
+            Point mp = MouseInfo.getPointerInfo().getLocation(), pp = jFrame.getComponent(0).getLocationOnScreen();
+            return new Point2D.Float (mp.x - pp.x, mp.y - pp.y);
+        } catch (NullPointerException | IllegalComponentStateException e) {
             System.out.println(e + ", getMousePos");
             return new Point2D.Float ();
         }
