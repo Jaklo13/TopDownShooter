@@ -1,5 +1,8 @@
 package topdownshooter;
 
+import java.awt.Shape;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -54,13 +57,20 @@ public class GameManager implements Runnable{
 
     private void update() {
         updatePlayers();
-//        System.out.println (kp.size());
     }
     
     public void updatePlayers() {
         for (Player p : players) {
 
             p.update();
+        }
+    }
+    
+    public void mouseClicked () {
+        for (Player p : players) {
+            if (!(p instanceof XboxPlayer)) {
+                p.shoot ();
+            }
         }
     }
     
@@ -77,11 +87,16 @@ public class GameManager implements Runnable{
         }
     }
     
-    public ArrayList<GameObject> intersectsAny (Rectangle2D.Float r) {
+    public ArrayList<GameObject> intersectsAny (Shape s) {
         ArrayList<GameObject> intersectedObjects = new ArrayList<>();
         for (GameObject g : gObjects) {
-            if (r.intersects(g.getBounds())) {
-                intersectedObjects.add(g);
+            if (s instanceof Line2D) {
+                if (g.getBounds().intersectsLine((Line2D)s))
+                    intersectedObjects.add(g); 
+            } else {
+                if (g.getBounds().intersects((Rectangle2D)s)) {
+                    intersectedObjects.add(g);
+                }
             }
         }
         return intersectedObjects;
@@ -111,6 +126,14 @@ public class GameManager implements Runnable{
         kp.remove (k);
     }
     
+    public Point2D.Float getShootingDistance (float r) {
+        float minLength = window.getDiagonal() * -1;        //The will always be longer than it needs to be, but since there aren't any Objects outside
+        Point2D.Float p = new Point2D.Float ();             //the window, the length doesn't matter, as long as the shot reaches the end
+        p.x = (float)(Math.cos (r) * minLength);
+        p.y = (float)(Math.sin (r) * minLength);
+        return p;
+    }
+    
     public  BufferedImage[][] getSprites() {
         return sprites;
     }
@@ -121,6 +144,10 @@ public class GameManager implements Runnable{
     
     public  BufferedImage getSprite (int type, int nr) {
         return sprites[type][nr];
+    }
+    
+    public Point2D.Float getMousePos () {
+        return window.getMousePos();
     }
     
     public static void main(String[] args) {
