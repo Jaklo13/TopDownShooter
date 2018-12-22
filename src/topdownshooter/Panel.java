@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class Panel extends JPanel{
         setBackground (Color.LIGHT_GRAY);
         setBorder (BorderFactory.createLineBorder(Color.BLACK, 10));
         setPreferredSize(new Dimension ((int)dim.x,(int)dim.y));
+        
         MA ma = new MA ();
         addMouseListener (ma);
         addMouseMotionListener (ma);
@@ -44,18 +46,18 @@ public class Panel extends JPanel{
             ArrayList<GameObject> gObjects = GameManager.GM.getGameObjects();
             for (GameObject go : gObjects) {
                 if (!(go instanceof Wall)) {
-                BufferedImage sprite = go.getSprite();
-                float halfWidth = (float)go.getBounds().getWidth() / 2, halfHeight = (float)go.getBounds().getWidth() / 2;
-                Point2D.Float pos = go.getPos();
-                AffineTransform at = new AffineTransform ();
-                
-                at.translate(pos.getX() + halfWidth, pos.getY() + halfHeight);  //First the Affine Transform is centerd on the position
-                at.rotate(go.getRotation());                                    //Then it's rotated and centered around the Object's position
-                at.translate(-halfWidth, -halfHeight);                          
-                g.drawImage(go.getSprite(), at, this);
-                
-                g.setColor(Color.red);                                        //use this to see the hitboxes of all Objects                        
-                g.drawRect((int)go.bounds.x, (int)go.bounds.y, (int)go.bounds.width, (int)go.bounds.height);
+                    BufferedImage sprite = go.getSprite();
+                    float halfWidth = (float)go.getBounds().getWidth() / 2, halfHeight = (float)go.getBounds().getWidth() / 2;
+                    Point2D.Float pos = go.getPos(GameObject.CENTER);
+                    AffineTransform at = new AffineTransform ();
+
+                    at.translate(pos.getX(), pos.getY());  //First the Affine Transform is centerd on the position
+                    at.rotate(go.getRotation());                                    //Then it's rotated and centered around the Object's position
+                    at.translate(-halfWidth, -halfHeight);                          
+                    g.drawImage(go.getSprite(), at, this);
+
+                    g.setColor(Color.red);                                        //use this to see the hitboxes of all Objects                        
+                    g.drawRect((int)go.bounds.x, (int)go.bounds.y, (int)go.bounds.width, (int)go.bounds.height);
                 }
             }
         } catch (ConcurrentModificationException e) {
@@ -69,7 +71,14 @@ public class Panel extends JPanel{
     
     //for testing and debugging
     public void paintDebug (Graphics2D g) {
-
+        for (Line2D.Float l : Window.lines) {
+            g.setColor(Color.BLACK);
+            g.drawLine((int)l.x1,(int) l.y1, (int)l.x2, (int)l.y2);
+        }
+        for (Point2D.Float p : Window.points) {
+            g.setColor(Color.RED);
+            g.fillOval((int)p.x - 10,(int)p.y - 10,20,20);
+        }
     }
 
     public void paintEverything (Graphics2D g) {
@@ -103,7 +112,8 @@ public class Panel extends JPanel{
     
     public class MA extends MouseAdapter {
         @Override
-        public void mouseClicked (MouseEvent e) {
+        public void mousePressed (MouseEvent e) {
+            GameManager.GM.mouseClicked ();
         }
     }
     
