@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public abstract class GameObject  {
-    public static final byte TOP = 0b1, BOTTOM = 0b10, LEFT = 0b100, RIGHT = 0b1000;
+    public static final byte CENTER = 0, TOP = 0b1, BOTTOM = 0b10, LEFT = 0b100, RIGHT = 0b1000;
     protected Rectangle2D.Float bounds; //This contains both the size of the hitBox and the position
     protected BufferedImage sprite;
     protected float rotation = 0;
@@ -129,8 +129,27 @@ public abstract class GameObject  {
         return new Point2D.Float (bounds.width, bounds.height);
     }
     
+    //This is relative to the upper left corner
     public Point2D.Float getPos () {
         return new Point2D.Float (bounds.x, bounds.y);
+    }
+    
+    //Use the final variables to find the position relative to a certain corner/side. e.g. getPos (TOP | LEFT) would return relative to the upper left corner
+    public Point2D.Float getPos (int relTo) {
+        Point2D.Float p = new Point2D.Float (bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+        if ((relTo & TOP) == TOP) {
+            p.y -= bounds.height / 2;
+        }
+        if ((relTo & BOTTOM) == BOTTOM) {
+            p.y += bounds.height / 2;
+        }
+        if ((relTo & LEFT) == LEFT) {
+            p.x -= bounds.width / 2;
+        }
+        if ((relTo & RIGHT) == RIGHT) {
+            p.x += bounds.width / 2;
+        }
+        return p;
     }
 
     public BufferedImage getSprite () {
