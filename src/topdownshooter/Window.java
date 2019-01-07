@@ -107,4 +107,8 @@ public class Window {
     public BufferedImage getBackgroundImage () {
         return backgroundImage;
     }
+    
+    public JFrame getJFrame () {
+        return jFrame;
+    }
 }
