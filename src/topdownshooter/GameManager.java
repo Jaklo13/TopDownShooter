@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 
 public class GameManager implements Runnable{
     public static final String ASSETS_PATH = "src\\Assets\\";
@@ -57,6 +58,7 @@ public class GameManager implements Runnable{
 
     private void update() {
         updatePlayers();
+        checkFocus ();
     }
     
     public void updatePlayers() {
@@ -64,6 +66,13 @@ public class GameManager implements Runnable{
 
             p.update();
         }
+    }
+    
+    public void checkFocus () {
+        JFrame f = window.getJFrame();
+        if (f != null)
+            if (!f.isActive())
+                kp.clear();
     }
     
     public void mouseClicked () {
