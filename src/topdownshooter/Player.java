@@ -78,10 +78,16 @@ public class Player extends GameObject {
     
     public GameObject findFirstHit (Line2D.Float l, ArrayList<GameObject> iObj) {
         int relevantSides = determineRelevantSides (l.x2 - l.x1, l.y2 - l.y1);
-        ArrayList<Line2D.Float> lines = new ArrayList<>();
-        ArrayList<Point2D.Float> points = new ArrayList<>();
+        ArrayList<Line2D.Float> lines = findLines(iObj, relevantSides);
+        ArrayList<Point2D.Float> points = findPoints (lines, l);
+        Point2D.Float p = findClosestPoint (points, l);
         
-        for (GameObject go : iObj) {                                                                        //Finds all lines, on the outside of all GameObjects, that are hit
+        return iObj.get (points.indexOf(p));
+    }
+    
+    public ArrayList<Line2D.Float> findLines (ArrayList<GameObject> iObj, int relevantSides) {      //Finds all lines, on the outside of all GameObjects, that are hit
+        ArrayList<Line2D.Float> lines = new ArrayList<>();
+        for (GameObject go : iObj) {                                                                        
             if ((relevantSides & TOP) == TOP) {
                 lines.add (new Line2D.Float (go.getPos(TOP | LEFT),go.getPos(TOP | RIGHT)));
             } else if ((relevantSides & BOTTOM) == BOTTOM) {
@@ -93,10 +99,14 @@ public class Player extends GameObject {
                 lines.add (new Line2D.Float (go.getPos(RIGHT | TOP),go.getPos(RIGHT | BOTTOM)));
             }
         }
-                                                                                                            //Finds all intersection points
+        return lines;
+    }
+    
+    public ArrayList<Point2D.Float> findPoints (ArrayList<Line2D.Float> lines, Line2D.Float l) {    //Finds all intersection points
+        ArrayList<Point2D.Float> points = new ArrayList<>();
+
         if ((l.y1 != l.y2) && (l.x1 != l.x2)) {     //There are 2 reasons for this seperation. 1: if x1 == x2, devision by 0. 2: finding the point is much easier, if this is true
             float m = (float)((l.y2 - l.y1) / (l.x2 - l.x1)), n = l.y1 - (m * l.x1);                        //m and n of f(x)=m*x+n
-
             Iterator<Line2D.Float> iter = lines.iterator();
             while (iter.hasNext()) {
                 Line2D.Float line = iter.next();
@@ -126,7 +136,10 @@ public class Player extends GameObject {
             }
         }
         Window.points.addAll(points);   //For debugging only
-        
+        return points;
+    }
+    
+    public Point2D.Float findClosestPoint (ArrayList<Point2D.Float> points, Line2D.Float l) {
         Point2D.Float p1 = new Point2D.Float (l.x1,l.y1), p2 = points.get(0);
         float dist = (float)p1.distance(p2);
         for (Point2D.Float p : points) {                                                                    //Finds the point, that is closest to the player
@@ -136,8 +149,7 @@ public class Player extends GameObject {
                 p2 = p;
             }
         }
-        
-        return iObj.get (points.indexOf(p2));
+        return p2;
     }
     
     //This should only get lines that are either horizontal or vertical
