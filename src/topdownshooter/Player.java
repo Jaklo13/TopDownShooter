@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class Player extends GameObject {
     public static final String[] DIRECTION_NAMES = new String[]{"UP","DOWN","LEFT","RIGHT"};
@@ -95,17 +96,24 @@ public class Player extends GameObject {
                                                                                                             //Finds all intersection points
         if ((l.y1 != l.y2) && (l.x1 != l.x2)) {     //There are 2 reasons for this seperation. 1: if x1 == x2, devision by 0. 2: finding the point is much easier, if this is true
             float m = (float)((l.y2 - l.y1) / (l.x2 - l.x1)), n = l.y1 - (m * l.x1);                        //m and n of f(x)=m*x+n
-            for (Line2D.Float line : lines) {
-                if (line.intersectsLine(l)) {                                                               //So far, these are the lines, that could intersect, if they don't, they are stopped here
-                    if (isHorizontal (line)) {
-                        float y = line.y1, x;                                                               //Calculates x and y of the intersection point and adds it
-                        x = (y - n) / m;
-                        points.add (new Point2D.Float (x,y));
-                    } else {
-                        float y, x = line.x1;
-                        y = x * m + n;
-                        points.add (new Point2D.Float (x,y));
-                    }
+
+            Iterator<Line2D.Float> iter = lines.iterator();
+            while (iter.hasNext()) {
+                Line2D.Float line = iter.next();
+                if (line.intersectsLine(l)) {
+                    float y = line.y1, x;                                       //Calculates x and y of the intersection point and adds it
+                    x = (y - n) / m;
+                    points.add (new Point2D.Float (x,y));                       //So far, these are the lines, that could intersect, if they don't, they are stopped here
+                    
+                    iter.next();                                                //Calculates x and y of the intersection point and adds it
+                    iter.remove();
+                } else {
+                    iter.remove ();
+                    line = iter.next();
+                    
+                    float y, x = line.x1;
+                    y = x * m + n;
+                    points.add (new Point2D.Float (x,y));
                 }
             }
         } else {
