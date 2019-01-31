@@ -26,12 +26,14 @@ public class GameManager implements Runnable{
     private HashSet<Integer> kp = new HashSet<>();  //Keys pressed
     private Arena arena;
     private Window window;
+    private ShotHandler sHandler;
     
     public GameManager () {
         GM = this;
         initializeSprites();
         arena = new Arena (1);
         window = arena.getWindow ();
+        sHandler = new ShotHandler ();
         
         Key.initializeKeyCodesArray();
         
@@ -58,6 +60,7 @@ public class GameManager implements Runnable{
 
     private void update() {
         updatePlayers();
+        sHandler.update();
         checkFocus ();
     }
     
@@ -117,6 +120,10 @@ public class GameManager implements Runnable{
 
     public Arena getArena() {
         return arena;
+    }
+    
+    public ShotHandler getShotHandler() {
+        return sHandler;
     }
     
     public ArrayList<GameObject> getGameObjects() {
