@@ -52,6 +52,6 @@ public class Player extends GameObject {
     }
     
     public void shoot () {
-        GameManager.GM.getShotHandler().addShot(getPos(0), 100, getRotation(), this);
+        GameManager.GM.getShotHandler().addShot(getPos(0), 50, getRotation(), this);
     }
 }
