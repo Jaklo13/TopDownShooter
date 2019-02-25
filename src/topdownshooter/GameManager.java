@@ -129,6 +129,18 @@ public class GameManager implements Runnable{
     public ArrayList<GameObject> getGameObjects() {
         return gObjects;
     }
+    
+    public ArrayList<Line2D.Float> getShots () {
+        return sHandler.getShots();
+    }
+    
+    public ArrayList<Line2D.Float> getEndLines () {
+        return sHandler.getEndLines();
+    }
+    
+    public void clearEndLines () {
+        sHandler.clearEndLines ();
+    }
 
     public HashSet<Integer> getKp() {
         return kp;
