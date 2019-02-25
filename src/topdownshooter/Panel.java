@@ -1,5 +1,6 @@
 package topdownshooter;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -20,6 +21,7 @@ import javax.swing.JPanel;
 
 public class Panel extends JPanel{
     private Image backgroundImage = createImage (0,0);
+    private BufferedImage lastShots = new BufferedImage (getWidth(),getHeight(),BufferedImage.TYPE_INT_ARGB);
 
     public Panel (Window window) {
         Point2D.Float dim = window.getDimensions();
@@ -66,19 +68,37 @@ public class Panel extends JPanel{
     }
     
     public void paintBullets (Graphics2D g) {
-        
+        BufferedImage shotImage = new BufferedImage (getWidth(),getHeight(),BufferedImage.TYPE_INT_ARGB);
+        paintShotsOnImage ((Graphics2D)shotImage.getGraphics());
+        g.drawImage(lastShots, 0, 0, this);
+        g.drawImage(shotImage, 0, 0, this);
+        lastShots = shotImage;
     } 
+    
+    public void paintShotsOnImage (Graphics2D g) {
+        ArrayList<Line2D.Float> shots = GameManager.GM.getShots();
+        g.setStroke(new BasicStroke(10));
+        g.setColor (Color.RED);
+        for (Line2D.Float shot : shots) {
+            g.drawLine((int)shot.x1,(int)shot.y1, (int)shot.x2, (int)shot.y2);
+        }
+        ArrayList<Line2D.Float> end = GameManager.GM.getEndLines();
+        for (Line2D.Float shot : end) {
+            g.drawLine((int)shot.x1,(int)shot.y1, (int)shot.x2, (int)shot.y2);
+        }
+        GameManager.GM.clearEndLines ();
+    }
     
     //for testing and debugging
     public void paintDebug (Graphics2D g) {
-        for (Line2D.Float l : Window.lines) {
-            g.setColor(Color.BLACK);
-            g.drawLine((int)l.x1,(int) l.y1, (int)l.x2, (int)l.y2);
-        }
-        for (Point2D.Float p : Window.points) {
-            g.setColor(Color.RED);
-            g.fillOval((int)p.x - 10,(int)p.y - 10,20,20);
-        }
+//        for (Line2D.Float l : Window.lines) {
+//            g.setColor(Color.BLACK);
+//            g.drawLine((int)l.x1,(int) l.y1, (int)l.x2, (int)l.y2);
+//        }
+//        for (Point2D.Float p : Window.points) {
+//            g.setColor(Color.RED);
+//            g.fillOval((int)p.x - 10,(int)p.y - 10,20,20);
+//        }
     }
 
     public void paintEverything (Graphics2D g) {
