@@ -12,6 +12,8 @@ import static topdownshooter.GameObject.TOP;
 public class ShotHandler {
     private ArrayList<Line2D.Float> shots = new ArrayList<>();
     private ArrayList<GameObject> shooter = new ArrayList<>();
+    private ArrayList<Line2D.Float> endLines = new ArrayList<>();
+    private Point2D.Float endPoint;
     
     public ShotHandler () {
     
@@ -50,12 +52,26 @@ public class ShotHandler {
         shots.add (l);
         shooter.add (o);
         checkHits (l);
-        Window.lines.add(l);
     }
     
     public void removeShot (Line2D.Float l) {
+        endLines.add(endLine(l));
         shooter.remove (shots.indexOf(l));
         shots.remove(l);
+    }
+    
+    public Line2D.Float endLine (Line2D.Float line) {
+        Line2D.Float l = null;
+        if (endPoint == null) {
+            System.out.println ("Error, no end point");
+        }
+        l = new Line2D.Float (line.x1,line.y1,endPoint.x,endPoint.y);
+        endPoint = null;
+        return l;
+    } 
+    
+    public void clearEndLines () {
+        endLines = new ArrayList<>();
     }
     
     public void checkHits (Line2D.Float line) {   
@@ -80,6 +96,7 @@ public class ShotHandler {
         ArrayList<Line2D.Float> lines = findLines(iObj, relevantSides);
         ArrayList<Point2D.Float> points = findPoints (lines, l);
         Point2D.Float p = findClosestPoint (points, l);
+        endPoint = new Point2D.Float(p.x,p.y);
         
         return iObj.get (points.indexOf(p));
     }
@@ -154,5 +171,13 @@ public class ShotHandler {
     //This should only recieve lines that are either horizontal or vertical
     public boolean isHorizontal (Line2D.Float line) {
         return (line.y1 == line.y2);
+    }
+
+    public ArrayList<Line2D.Float> getShots() {
+        return shots;
+    }
+
+    public ArrayList<Line2D.Float> getEndLines() {
+        return endLines;
     }
 }
