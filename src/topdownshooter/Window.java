@@ -22,8 +22,8 @@ public class Window {
     private int width, height;
     //index 0 => x axis, index 1 => y axis
 
-    public static ArrayList<Line2D.Float> lines = new ArrayList<>();
-    public static ArrayList<Point2D.Float> points = new ArrayList<>();
+//    public static ArrayList<Line2D.Float> lines = new ArrayList<>();
+//    public static ArrayList<Point2D.Float> points = new ArrayList<>();
 
 //    private ControllerManager cmanager;
 //    private ControllerState cstate;
