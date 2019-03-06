@@ -6,8 +6,10 @@ import java.util.HashSet;
 
 public class Player extends GameObject {
     public static final String[] DIRECTION_NAMES = new String[]{"UP","DOWN","LEFT","RIGHT"};
+    public static final int MAX_HEALTH = 100;
     private int pn; //playerNumber
     protected float speed = 5f;
+    private int health = MAX_HEALTH;
     
     //construct a Player object with it`s number
     public Player (int pn) {
@@ -53,5 +55,28 @@ public class Player extends GameObject {
     
     public void shoot () {
         GameManager.GM.getShotHandler().addShot(getPos(0), 50, getRotation(), this);
+    }
+    
+    public void takeDamage (int dmg) {
+        health -= dmg;
+        if (health <= 0) {
+            die ();
+        }
+    }
+    
+    public void die () {
+        GameManager.GM.removePlayer (this);
+    }
+
+    public int getPn() {
+        return pn;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+    
+    public float getHealthPercentage() {
+        return (float)health / MAX_HEALTH;
     }
 }
