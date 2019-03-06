@@ -10,94 +10,70 @@ import static topdownshooter.GameObject.RIGHT;
 import static topdownshooter.GameObject.TOP;
 
 public class ShotHandler {
-    private ArrayList<Line2D.Float> shots = new ArrayList<>();
-    private ArrayList<GameObject> shooter = new ArrayList<>();
-    private ArrayList<Line2D.Float> endLines = new ArrayList<>();
-    private Point2D.Float endPoint;
+    private ArrayList<Shot> shots = new ArrayList<>();
     
     public ShotHandler () {
     
     }
     
     public void update () {
+        updateShots ();
+    }
+    
+    public void updateShots () {
         for (int i = 0; i < shots.size(); i++) {
-            Line2D.Float l = shots.get(i);
-            updateShot (l);
-            if (l == null) {
-                i--;
+            shots.get(i).update();
+            checkShot (shots.get(i));
+        }
+    }
+    
+    public void checkShot (Shot shot) {
+        if (shot.isMoving()) {
+            if (!checkOutOfBounds (shot)) {
+                checkHits (shot);
+            } else {
+                shot.stopMoving (new Point2D.Float (shot.getHitLine().x2,shot.getHitLine().y2));
             }
+            
+        } else if (shot.tooShort()) {
+            shots.remove (shot);
         }
     }
     
-    public void updateShot (Line2D.Float l) {
-        float d1 = l.x2 - l.x1, d2 = l.y2 - l.y1;   //translates the shot
-        l.x1 += d1;
-        l.x2 += d1;
-        l.y1 += d2;
-        l.y2 += d2;
-        if (!checkOutOfBounds (l)) {
-            checkHits (l);
-        } else {
-            removeShot(l);
-        }
-    }
-    
-    public boolean checkOutOfBounds (Line2D.Float l) {  //should return true when out of bounds, to be implemented later
+    public boolean checkOutOfBounds (Shot shot) {  //should return true when out of bounds, to be implemented later
         return false;                                   //this is just a failsafe, in case a shot goes out of bounds
     }
     
     public void addShot (Point2D.Float p1, float speed, float dir, GameObject o) {
         Point2D.Float p2 = new Point2D.Float (p1.x + speed * (float)Math.cos(dir) * -1, p1.y + speed * (float)Math.sin(dir) * -1);
         Line2D.Float l = new Line2D.Float (p1,p2);
-        shots.add (l);
-        shooter.add (o);
-        checkHits (l);
+        Shot s = new Shot (this,l,o);
+        shots.add (s);
+        checkHits (s);
     }
     
-    public void removeShot (Line2D.Float l) {
-        endLines.add(endLine(l));
-        shooter.remove (shots.indexOf(l));
-        shots.remove(l);
-    }
-    
-    public Line2D.Float endLine (Line2D.Float line) {
-        Line2D.Float l = null;
-        if (endPoint == null) {
-            System.out.println ("Error, no end point");
-        }
-        l = new Line2D.Float (line.x1,line.y1,endPoint.x,endPoint.y);
-        endPoint = null;
-        return l;
-    } 
-    
-    public void clearEndLines () {
-        endLines = new ArrayList<>();
-    }
-    
-    public void checkHits (Line2D.Float line) {   
+    public void checkHits (Shot shot) {   
         ArrayList<GameObject> iObj;                                                                         //Similar to the collision algorythm, an array is created, to store all Objects,
-        iObj = GameManager.GM.intersectsAny (line);                                                         //that intersect with the line
-        shooter.get(shots.indexOf(line)).removeThis (iObj);
+        iObj = GameManager.GM.intersectsAny (shot.getHitLine());                                            //that intersect with the line
+        shot.getShooter().removeThis (iObj);                                                                //removes the shooter from the objects that are hit
         if (iObj.isEmpty()) {
             return;
         }                                                                //If no player Object is intersected, there is no need, to check if it is hit
-        GameObject firstObject = findFirstHit (line,iObj);
+        GameObject firstObject = findFirstHit (shot,iObj);
         if (firstObject instanceof Player) {
-            System.out.println ("HIT");
+            ((Player) firstObject).takeDamage(shot.getDmg());
         } else {
-            System.out.println ("MISS");
         }
-        removeShot(line);
-        return;     
     }
     
-    public GameObject findFirstHit (Line2D.Float l, ArrayList<GameObject> iObj) {
+    public GameObject findFirstHit (Shot shot, ArrayList<GameObject> iObj) {
+        Line2D.Float l = shot.getHitLine();
         int relevantSides = GameObject.determineRelevantSides (l.x2 - l.x1, l.y2 - l.y1);
         ArrayList<Line2D.Float> lines = findLines(iObj, relevantSides);
         ArrayList<Point2D.Float> points = findPoints (lines, l);
         Point2D.Float p = findClosestPoint (points, l);
-        endPoint = new Point2D.Float(p.x,p.y);
         
+        shot.stopMoving(p);
         return iObj.get (points.indexOf(p));
     }
     
@@ -151,7 +127,6 @@ public class ShotHandler {
                 }
             }
         }
-//        Window.points.addAll(points);   //For debugging only
         return points;
     }
     
@@ -173,11 +148,14 @@ public class ShotHandler {
         return (line.y1 == line.y2);
     }
 
-    public ArrayList<Line2D.Float> getShots() {
+    public ArrayList<Shot> getShots() {
         return shots;
     }
-
-    public ArrayList<Line2D.Float> getEndLines() {
-        return endLines;
+    
+    public ArrayList<Line2D.Float> getTraces() {
+        ArrayList<Line2D.Float> traces = new ArrayList<>();
+        for (Shot s : shots)
+            traces.add(s.getTrace());
+        return traces;
     }
 }
