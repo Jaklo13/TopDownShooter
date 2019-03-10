@@ -1,0 +1,15 @@
+<synth>
+ <style id="buttonStyle">
+   <font name="Arial" size="50"/>
+   <insets top="15" left="20" right="20" bottom="15"/>
+   <state>
+      <imagePainter method="buttonBackground" path=""
+        sourceInsets="10 10 10 10"/>
+   </state>
+   <state value="MOUSE_OVER">
+      <imagePainter method="buttonBackground" path="ButtonHighlighted.png"
+                    sourceInsets="10 10 10 10"/>
+    </state>
+   </style>
+   <bind style="buttonStyle" type="region" key="button"/>
+</synth>

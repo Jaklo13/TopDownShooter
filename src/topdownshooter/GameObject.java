@@ -67,7 +67,7 @@ public abstract class GameObject  {
         }
     }
     
-    public int determineRelevantSides (float x, float y) {
+    public static int determineRelevantSides (float x, float y) {
         int relevantSides = 0;                          //Determine the sides of the hitbox it could move into.
         if (y != 0)                                     //e.g. if this moves straight up, it can only hit the bottom of an Object
             relevantSides |= (y > 0)? TOP : BOTTOM;    

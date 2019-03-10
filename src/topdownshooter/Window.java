@@ -1,43 +1,43 @@
 package topdownshooter;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.IllegalComponentStateException;
 import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 
 public class Window {
-    public static final int BORDER_SIZE = 25, TOP_BORDER_SIZE = 20;
-    public static final Point UPPER_LEFT_CORNER = new Point (BORDER_SIZE, BORDER_SIZE + TOP_BORDER_SIZE);
     private JFrame jFrame;
+    private JPanel panel;
     private BufferedImage backgroundImage;
     private int width, height;
     //index 0 => x axis, index 1 => y axis
 
-    public static ArrayList<Line2D.Float> lines = new ArrayList<>();
-    public static ArrayList<Point2D.Float> points = new ArrayList<>();
+//    public static ArrayList<Line2D.Float> lines = new ArrayList<>();
+//    public static ArrayList<Point2D.Float> points = new ArrayList<>();
 
 //    private ControllerManager cmanager;
 //    private ControllerState cstate;
-
-    public Window (int width, int height) {
-        this.width = width;
-        this.height = height;
+    
+    public Window () {  //for loading the menu
+        this.width = 1920;
+        this.height = 1080;
         SwingUtilities.invokeLater(new Runnable () {
             @Override
             public void run() {
                 createWindow ();
             }
         });
-//        
+        
 //        cmanager = new ControllerManager();
 //        cmanager.initSDLGamepad();
     }
@@ -45,29 +45,45 @@ public class Window {
     public void createWindow () {
         jFrame = new JFrame ();
         jFrame.setTitle ("Game");
-        jFrame.setResizable(false);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setVisible(true);
-//        Panel p = new Panel (this);
-        jFrame.add (new Panel (this));
+        jFrame.setResizable(false);
+        panel = new Menu ();
+        jFrame.add (panel);
         jFrame.pack();
         jFrame.setLocationRelativeTo (null);
     }
     
-    public BufferedImage paintBackgroundImage (Arena a) {
-        BufferedImage image = new BufferedImage (width,height,BufferedImage.TYPE_4BYTE_ABGR_PRE);
+    public void setWindow (JPanel p) {  //To change between game and main menu
+        jFrame.remove(panel);
+        panel = p;
+        jFrame.add (panel);
+        panel.requestFocusInWindow();
+        jFrame.pack();
+        jFrame.setLocationRelativeTo (null);
+    }
+    
+    public void paintBackgroundImage (Arena a) {
+        Point p = a.getWindowDimensions();
+        BufferedImage image = new BufferedImage (p.x,p.y,BufferedImage.TYPE_4BYTE_ABGR_PRE);
         Graphics g = image.getGraphics();
-        g.setColor (new Color (000,200,100));           //Here we will ad a Grass Image later
-        g.fillRect(0, 0, width, height);
+        g.setColor (new Color (000,200,100));           //Here we will ad a Ground Image later
+        g.fillRect(0, 0, p.x, p.y);
         ArrayList<Wall> walls;
         walls = a.getWalls();
         for (Wall w : walls) {
             Rectangle2D.Float b = w.getBounds();
             g.drawImage(GameManager.GM.getSprite(GameManager.WALL_SPRITES, 0), (int)b.x, (int)b.y, null);
         }
-        return image;
+        backgroundImage = image;
     }
-
+    
+    public void setBackgroundImageToPanel () {
+        if (panel instanceof Panel) {
+            ((Panel)panel).setBackgroundImage (backgroundImage);
+        }
+    }
+    
 //    public float[] getXboxDirectionsLeft(){
 //        cstate = cmanager.getState(0);
 //        return new float[]{cstate.leftStickX, cstate.leftStickY};
@@ -97,14 +113,20 @@ public class Window {
     }
     
     public void setBackgroundImage (Arena a) {
-        backgroundImage = paintBackgroundImage (a);
+        paintBackgroundImage (a);
+        setBackgroundImageToPanel ();
     }
     
     public void setBackgroundImage (BufferedImage image) {
         backgroundImage = image;
+        setBackgroundImageToPanel ();
     }
     
     public BufferedImage getBackgroundImage () {
         return backgroundImage;
+    }
+    
+    public JFrame getJFrame () {
+        return jFrame;
     }
 }

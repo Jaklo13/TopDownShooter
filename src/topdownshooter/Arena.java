@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 public class Arena {
     public static final int TILE_SIZE = 50;
-    public static Window window;
     private int width, height;
     //0 - open, 1 - wall
     private int[][] tiles;
@@ -15,7 +14,6 @@ public class Arena {
     
     public Arena (int type) {
         createArena (type);
-        window = new Window (width * TILE_SIZE, height * TILE_SIZE);
         
         placeOuterWall ();
         placeTiles ();
@@ -73,7 +71,6 @@ public class Arena {
                 }
             }
         }
-        window.setBackgroundImage (this);
     }
     
     public Point2D.Float getSpawnPoint (int p) {
@@ -84,8 +81,8 @@ public class Arena {
         return spawnPoints;
     }
     
-    public Window getWindow () {
-        return window;
+    public Point getWindowDimensions () {
+        return new Point (width * TILE_SIZE, height * TILE_SIZE);
     }
     
     public ArrayList<Wall> getWalls () {
