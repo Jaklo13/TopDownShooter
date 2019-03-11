@@ -1,7 +1,5 @@
 package topdownshooter;
 
-
-import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -14,13 +12,9 @@ import java.util.ArrayList;
 public class TxtArena extends Arena {
 
     private File arena1;
-    //protected int[][] tiles;
 
-    public static final int TILE_SIZE = 50;
-    private int width, height;
-    private ArrayList<Wall> walls;
-    private ArrayList<Point> spawnPoints;
-
+    //instantiates a new arena, parsing the tiles[][] array from a txt file "arena1"
+    //TODO: User selectable Maps
     public TxtArena(){
         arena1 = new File("src\\Assets\\arena1.txt");
         try {
@@ -47,9 +41,14 @@ public class TxtArena extends Arena {
 
     }
 
-
+    /*
+    * parses input from the txt file to arena base encoding
+    * P/p -> 2 (player spawn)
+    * X/x -> 1 (wall)
+    * . -> 0 (floor)
+    * */
     private int parseType(char c){
-        if(c == 'P'){
+        if(c == 'P' || c == 'p'){
             return 2;
         }
         if(c == 'X' || c == 'x'){
@@ -65,6 +64,10 @@ public class TxtArena extends Arena {
         return -1;
     }
 
+    /*
+    * Prints tiles array in console
+    * FOR DEBUGGING ONLY
+    * */
     private void printTiles(){
         for(int[] col : tiles){
             for(int row : col){
