@@ -1,21 +1,26 @@
 package topdownshooter;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.HashSet;
 
 public class Player extends GameObject {
     public static final String[] DIRECTION_NAMES = new String[]{"UP","DOWN","LEFT","RIGHT"};
     public static final int MAX_HEALTH = 100;
+    public static final Color[] PLAYER_COLORS = new Color[]{new Color (52,120,255),new Color (22,255,60),new Color (255,59,59),new Color (255,250,52)}; //Colors for the first 4 players: Blue,green,red,yellow
     private int pn; //playerNumber
     protected float speed = 5f;
     private int health = MAX_HEALTH;
+    private BufferedImage bullet;
     
     //construct a Player object with it`s number
     public Player (int pn) {
-        super (GameManager.GM.getArena().getSpawnPoint(pn), GameManager.GM.getSprite(GameManager.PLAYER_SPRITES,pn));
+        super (GameManager.GM.getArena().getSpawnPoint(pn), GameManager.colorImage(GameManager.GM.getSprite(GameManager.PLAYER_SPRITES,0),PLAYER_COLORS[pn]));
         this.pn = pn;
         bounds = new Rectangle2D.Float (bounds.x,bounds.y,bounds.width, bounds.width);
+        bullet = GameManager.colorImage(GameManager.GM.getSprite(GameManager.BULLET_SPRITES, 0), PLAYER_COLORS[pn]);
     }
     
     public void update () {
@@ -70,6 +75,10 @@ public class Player extends GameObject {
 
     public int getPn() {
         return pn;
+    }
+
+    public BufferedImage getBullet() {
+        return bullet;
     }
 
     public int getHealth() {

@@ -97,7 +97,7 @@ public class Panel extends JPanel{
         for (int i = 0; i < players.size(); i++) {
             g.setColor(new Color (100,100,100,100));
             g.fillRect(ulc.x + i * (borderSize * 2 + healthBarLength + gap), ulc.y, borderSize * 2 + healthBarLength,healthBarHeight + borderSize * 2);
-            g.setColor(GameManager.PLAYER_COLORS[players.get(i).getPn()]);
+            g.setColor(Player.PLAYER_COLORS[players.get(i).getPn()]);
             g.fillRect(ulc.x + borderSize + i * (borderSize * 2 + healthBarLength + gap), ulc.y + borderSize, (int)(GameManager.GM.getPlayerHealthPercentage(i) * healthBarLength),healthBarHeight);
         }
     }

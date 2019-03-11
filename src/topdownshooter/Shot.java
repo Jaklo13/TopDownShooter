@@ -21,8 +21,13 @@ public class Shot {
         this.hitLine = hitLine;
         this.shooter = shooter;
         this.trace = new Line2D.Float (hitLine.x1,hitLine.y1,hitLine.x2,hitLine.y2);
-        int pn = (shooter instanceof Player)? ((Player)shooter).getPn () + 1: 0;
-        this.sprite = GameManager.GM.getSprite(GameManager.BULLET_SPRITES, pn);
+        if (shooter instanceof Player) {
+            int pn = ((Player)shooter).getPn () + 1;
+            this.sprite = ((Player)shooter).getBullet ();
+        } else {
+            this.sprite = GameManager.GM.getSprite(GameManager.BULLET_SPRITES, 0);
+        }
+        
     }
     
     public void update () {
