@@ -18,15 +18,14 @@ import javax.swing.JOptionPane;
 public class GameManager implements Runnable{
     public static final String ASSETS_PATH = "src\\Assets\\";
     public static final String[][] SPRITE_NAMES = new String[][]{
-            new String[] {"PlayerSprite1.png","PlayerSprite2.png"},
+            new String[] {"Player.png"},
             new String[] {"Pistol.png","Rifle.png"},
             new String[] {},
             new String[] {"Wall.png"},
             new String[] {"Bullet.png"}};
     public static final int PLAYER_SPRITES = 0, WEAPON_SPRITES = 1, ITEM_SPRITES = 2, WALL_SPRITES = 3, BULLET_SPRITES = 4; //use as the first pointer in the allSprites array
-    public static final Color[] PLAYER_COLORS = new Color[]{new Color (52,120,255),new Color (22,255,60),new Color (255,59,59),new Color (255,250,52)}; //Colors for the first 4 players: Blue,green,red,yellow
     public static GameManager GM;
-    private BufferedImage[][] sprites = new BufferedImage[][]{new BufferedImage[SPRITE_NAMES[0].length], new BufferedImage[SPRITE_NAMES[1].length], new BufferedImage[SPRITE_NAMES[2].length], new BufferedImage[SPRITE_NAMES[3].length], new BufferedImage[5]};
+    private BufferedImage[][] sprites = new BufferedImage[][]{new BufferedImage[SPRITE_NAMES[0].length], new BufferedImage[SPRITE_NAMES[1].length], new BufferedImage[SPRITE_NAMES[2].length], new BufferedImage[SPRITE_NAMES[3].length], new BufferedImage[SPRITE_NAMES[4].length]};
     private ArrayList<GameObject> gObjects = new ArrayList<>();   //this keeps track of all GameObjects, so the Window can draw it
     private ArrayList<Player> players = new ArrayList<>();
     private HashSet<Integer> kp = new HashSet<>();  //Keys pressed
@@ -52,6 +51,7 @@ public class GameManager implements Runnable{
         Point p = arena.getWindowDimensions();
         window.setWindow (new Panel (p.x,p.y));
         window.setBackgroundImage(arena);
+        kp.clear();
     }
     
     public void endGame () {
@@ -131,20 +131,16 @@ public class GameManager implements Runnable{
             }
         } catch (IOException e) {
             e.printStackTrace ();
-        }                                                               //Adds colored Bullets for different players
-        for (int i = 0; i < PLAYER_COLORS.length; i++) {
-        sprites[BULLET_SPRITES][i + 1] = getColoredBullet(PLAYER_COLORS[i]);
         }
     }
     
-    public BufferedImage getColoredBullet (Color c) {
-        BufferedImage bs = sprites[BULLET_SPRITES][0], bi;
-        bi = new BufferedImage (bs.getColorModel(),bs.copyData(null),bs.isAlphaPremultiplied(),null);   //creates a copy of the default image
+    public static BufferedImage colorImage (BufferedImage bi, Color c) {
+        bi = new BufferedImage (bi.getColorModel(),bi.copyData(null),bi.isAlphaPremultiplied(),null);   //creates a copy of the default image
         int[] rgb = bi.getRGB(0, 0, bi.getWidth(), bi.getHeight(), null, 0, bi.getWidth());
         for (int i = 0; i < rgb.length; i++) {
             rgb[i] &= c.getRGB();
         }
-        bi.setRGB (0,0,bi.getWidth(),bs.getHeight(),rgb,0,bi.getWidth());
+        bi.setRGB (0,0,bi.getWidth(),bi.getHeight(),rgb,0,bi.getWidth());
         return bi;
     }
     
@@ -224,8 +220,13 @@ public class GameManager implements Runnable{
     }
     
     public  BufferedImage getSprite (int type, int nr) {
-        if (nr >= sprites[type].length) {
+        try {
+            if (nr >= sprites[type].length) {
+                throw new Exception ();
+            }
+        } catch (Exception e) {
             System.out.println ("Error, sprite not found");
+            e.printStackTrace ();
             return sprites[type][0];
         }
         return sprites[type][nr];
