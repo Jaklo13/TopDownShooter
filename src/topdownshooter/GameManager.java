@@ -45,7 +45,8 @@ public class GameManager implements Runnable{
     
     public void startGame () {
         menu = 0;
-        arena = new Arena (1);
+        //arena = new Arena (1);
+        arena = new TxtArena();
         spawnPlayer(0, false);
         spawnPlayer(1, true);
         Point p = arena.getWindowDimensions();

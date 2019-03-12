@@ -8,10 +8,16 @@ public class Arena {
     public static final int TILE_SIZE = 50;
     private int width, height;
     //0 - open, 1 - wall
-    private int[][] tiles;
+    protected int[][] tiles;
     private ArrayList<Wall> walls;
     private ArrayList<Point> spawnPoints;
-    
+
+
+    //needed for txtarena
+    protected Arena(){
+
+    }
+
     public Arena (int type) {
         createArena (type);
         
@@ -82,7 +88,10 @@ public class Arena {
     }
     
     public Point getWindowDimensions () {
-        return new Point (width * TILE_SIZE, height * TILE_SIZE);
+
+        int w = tiles.length;
+        int h = tiles[0].length;
+        return new Point (w * TILE_SIZE, h * TILE_SIZE);
     }
     
     public ArrayList<Wall> getWalls () {
