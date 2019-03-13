@@ -10,8 +10,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -20,7 +25,7 @@ public class GameManager implements Runnable{
     public static final String[][] SPRITE_NAMES = new String[][]{
             new String[] {"Player.png"},
             new String[] {"Pistol.png","Rifle.png"},
-            new String[] {},
+            new String[] {"Orb.png"},
             new String[] {"Wall.png"},
             new String[] {"Bullet.png"}};
     public static final int PLAYER_SPRITES = 0, WEAPON_SPRITES = 1, ITEM_SPRITES = 2, WALL_SPRITES = 3, BULLET_SPRITES = 4; //use as the first pointer in the allSprites array
@@ -28,11 +33,15 @@ public class GameManager implements Runnable{
     private BufferedImage[][] sprites = new BufferedImage[][]{new BufferedImage[SPRITE_NAMES[0].length], new BufferedImage[SPRITE_NAMES[1].length], new BufferedImage[SPRITE_NAMES[2].length], new BufferedImage[SPRITE_NAMES[3].length], new BufferedImage[SPRITE_NAMES[4].length]};
     private ArrayList<GameObject> gObjects = new ArrayList<>();   //this keeps track of all GameObjects, so the Window can draw it
     private ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<Wall> walls = new ArrayList<>();
+    private ArrayList<Item> items = new ArrayList<>();
     private HashSet<Integer> kp = new HashSet<>();  //Keys pressed
     private Arena arena;
     private Window window;
     private int menu = 1; //0 - in game, 1 - main menu
     private ShotHandler sHandler;
+    private Clip bgm;
+    
     
     public GameManager () {
         GM = this;
@@ -53,38 +62,54 @@ public class GameManager implements Runnable{
         window.setWindow (new Panel (p.x,p.y));
         window.setBackgroundImage(arena);
         kp.clear();
+        startMusic ();
     }
     
     public void endGame () {
         JOptionPane.showMessageDialog(window.getJFrame(), "Player " + (players.get(0).getPn() + 1) + " has won", "End Of Match", 0);
         menu = 1;
-        removePlayer (players.get(0));
+        remove (players.get(0));
         window.setWindow(new Menu ());
+        stopMusic ();
     }
     
     public void spawnPlayer(int pn, boolean isXbox) {
         try {
             Player player = (isXbox)? new XboxPlayer (pn) : new Player (pn);
-            players.add(player);
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println (e + ", Invalid Player Number");
             e.printStackTrace ();
         }
     }
     
-    public void addGameObject(GameObject o) {
-        gObjects.add(o);
-    }
-
-    public void addPlayer(Player p){
-        players.add(p);
+    public <T> void addGameObject(T o) {
+        if (o instanceof GameObject) {
+            gObjects.add((GameObject)o);        //adds the GameObject to gObject for the paint function
+            if (o instanceof Wall)              //adds the object to the correct array
+                walls.add((Wall)o);
+            else if (o instanceof Player)
+                players.add((Player)o);
+            else if (o instanceof Item)
+                items.add((Item)o);
+        } else {
+            System.out.println ("Error, not a GameObject");
+        }
     }
     
-    public void removePlayer (Player p) {
-        gObjects.remove (p);
-        players.remove (p);
-        if (hasEnded()) {
-            endGame ();
+    public <T> void remove (T o) {
+        if (o instanceof GameObject) {
+            gObjects.remove((GameObject)o);        //adds the GameObject to gObject for the paint function
+            if (o instanceof Wall)              //adds the object to the correct array
+                walls.remove((Wall)o);
+            else if (o instanceof Player) {
+                players.remove((Player)o);
+                if (hasEnded()) {
+                    endGame ();
+                }
+            } else if (o instanceof Item)
+                items.remove((Item)o);
+        } else {
+            System.out.println ("Error, not a GameObject");
         }
     }
     
@@ -99,9 +124,12 @@ public class GameManager implements Runnable{
     }
     
     public void updatePlayers() {
-        for (Player p : players) {
-
-            p.update();
+        try {
+            for (Player p : players) {
+                p.update();
+            }
+        } catch (ConcurrentModificationException e) {
+            System.out.println (e);
         }
     }
     
@@ -113,13 +141,13 @@ public class GameManager implements Runnable{
     }
     
     public void mouseClicked () {
-        if (menu == 0) {
-            for (Player p : players) {
-    //            if (!(p instanceof XboxPlayer)) {
-                p.shoot ();
-    //            }
-            }
-        }
+        if (!(players.get(0)instanceof XboxPlayer))
+            players.get(0).setShooting (true);
+    }
+    
+    public void mouseReleased () {
+        if (!(players.get(0)instanceof XboxPlayer))
+            players.get(0).setShooting (false);
     }
     
     public void initializeSprites() {
@@ -145,9 +173,19 @@ public class GameManager implements Runnable{
         return bi;
     }
     
-    public ArrayList<GameObject> intersectsAny (Shape s) {
+    public <T> ArrayList<GameObject> intersectsAny (Shape s, Class<T> type) {
         ArrayList<GameObject> intersectedObjects = new ArrayList<>();
-        for (GameObject g : gObjects) {
+        ArrayList<T> list;
+        if (type == Wall.class) {
+            list = (ArrayList<T>)walls;
+        } else if (type == Player.class) {
+            list = (ArrayList<T>)players;
+        } else if (type == Item.class) {
+            list = (ArrayList<T>)items;
+        } else {
+            list = (ArrayList<T>)gObjects;
+        }
+        for (GameObject g : (ArrayList<GameObject>)list) {
             if (s instanceof Line2D) {
                 if (g.getBounds().intersectsLine((Line2D)s))
                     intersectedObjects.add(g); 
@@ -158,6 +196,25 @@ public class GameManager implements Runnable{
             }
         }
         return intersectedObjects;
+    }
+    
+    public void startMusic () {
+        try {
+            bgm = AudioSystem.getClip();
+            AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File (ASSETS_PATH + "Doom_Theme.wav"));
+            bgm.open(inputStream);
+            FloatControl volume = (FloatControl) bgm.getControl(FloatControl.Type.MASTER_GAIN);
+            volume.setValue(-1 * 20);
+            bgm.setLoopPoints(0, -1);
+            bgm.loop(999);
+            bgm.start();
+        } catch (Exception e) {
+            e.printStackTrace ();
+        }
+    }
+    
+    public void stopMusic () {
+        bgm.stop();
     }
     
     public Window getWindow() {
@@ -246,9 +303,16 @@ public class GameManager implements Runnable{
     public void run() {
         try {
             while (true) {
+//                long test = System.currentTimeMillis (); // use this to test if the game is lagging
+                long n = System.currentTimeMillis ();
+                
                 update();
                 
-                Thread.sleep (16);
+                n = System.currentTimeMillis () - n;
+                
+                if (n < 16)
+                    Thread.sleep (16 - n);
+//                System.out.println(System.currentTimeMillis () - test);
             }
         } catch (Exception e) {
             e.printStackTrace ();
