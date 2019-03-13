@@ -4,15 +4,18 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Player extends GameObject {
     public static final String[] DIRECTION_NAMES = new String[]{"UP","DOWN","LEFT","RIGHT"};
-    public static final int MAX_HEALTH = 100;
+    public static final int MAX_HEALTH = 100, DEFAULT_FIRE_RATE = 10, DEFAULT_DMG = 10, DEFAULT_SHOT_SPEED = 50;
     public static final Color[] PLAYER_COLORS = new Color[]{new Color (52,120,255),new Color (22,255,60),new Color (255,59,59),new Color (255,250,52)}; //Colors for the first 4 players: Blue,green,red,yellow
     private int pn; //playerNumber
     protected float speed = 5f;
-    private int health = MAX_HEALTH;
+    private int health = MAX_HEALTH, fireRate = DEFAULT_FIRE_RATE, dmg = DEFAULT_DMG, shotSpeed = DEFAULT_SHOT_SPEED;
+    private int nextShot = 0;
+    private boolean shooting = false;
     private BufferedImage bullet;
     
     //construct a Player object with it`s number
@@ -26,6 +29,10 @@ public class Player extends GameObject {
     public void update () {
         move(GameManager.GM.getKp());
         lookAtPoint(GameManager.GM.getWindow().getMousePos());
+        if (nextShot > 0)
+            nextShot--;
+        shoot ();
+        checkForItems ();
     }
 
     public void lookAtPoint(Point2D.Float p){
@@ -59,7 +66,14 @@ public class Player extends GameObject {
     }
     
     public void shoot () {
-        GameManager.GM.getShotHandler().addShot(getPos(0), 50, getRotation(), this);
+        if (shooting && nextShot == 0) {
+            GameManager.GM.getShotHandler().addShot(getPos(0), shotSpeed, getRotation(), this, dmg);
+            nextShot = fireRate;
+        }
+    }
+    
+    public void setShooting (boolean s) {
+        shooting = s;
     }
     
     public void takeDamage (int dmg) {
@@ -70,7 +84,34 @@ public class Player extends GameObject {
     }
     
     public void die () {
-        GameManager.GM.removePlayer (this);
+        GameManager.GM.remove (this);
+    }
+    
+    public void checkForItems () {
+        ArrayList<GameObject> items = GameManager.GM.intersectsAny(bounds, Item.class);
+        for (GameObject i : items) {
+            ((Item)i).collected(this);
+        }
+    }
+    
+    public void buffDmg (float d) {
+        dmg += d;
+    }
+    
+    public void buffShotSpeed (float s) {
+        shotSpeed += s;
+    }
+    
+    public void buffFireRate (float f) {
+        fireRate -= f;
+        if (fireRate < 1)
+            fireRate = 1;
+    }
+    
+    public void heal (float h) {
+        health += h;
+        if (health > MAX_HEALTH)
+            health = MAX_HEALTH;
     }
 
     public int getPn() {
