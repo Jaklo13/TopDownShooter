@@ -13,14 +13,15 @@ public class Shot {
     private Line2D.Float hitLine, trace;
     private Point2D.Float endPoint;
     private boolean isMoving = true;
-    private int dmg = 10;
+    private int dmg;
 
     
-    public Shot (ShotHandler sh, Line2D.Float hitLine, GameObject shooter) {
+    public Shot (ShotHandler sh, Line2D.Float hitLine, GameObject shooter, int dmg) {
         this.sh = sh;
         this.hitLine = hitLine;
         this.shooter = shooter;
         this.trace = new Line2D.Float (hitLine.x1,hitLine.y1,hitLine.x2,hitLine.y2);
+        this.dmg = dmg;
         if (shooter instanceof Player) {
             int pn = ((Player)shooter).getPn () + 1;
             this.sprite = ((Player)shooter).getBullet ();
