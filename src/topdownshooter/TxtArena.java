@@ -34,7 +34,8 @@ public class TxtArena extends Arena {
             }
 
             createTiles();
-
+            
+            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
