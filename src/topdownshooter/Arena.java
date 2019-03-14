@@ -80,6 +80,10 @@ public class Arena {
     }
     
     public Point2D.Float getSpawnPoint (int p) {
+        if (spawnPoints.size() <= p) {
+            System.out.println ("Error, not enought spawnPoints");
+            return new Point2D.Float(TILE_SIZE,TILE_SIZE);
+        }
         return new Point2D.Float(spawnPoints.get(p).x * TILE_SIZE,spawnPoints.get(p).y * TILE_SIZE);
     }
     
@@ -96,5 +100,9 @@ public class Arena {
     
     public ArrayList<Wall> getWalls () {
         return walls;
+    }
+    
+    public int[][] getTiles () {
+        return tiles;
     }
 }
