@@ -24,7 +24,7 @@ public abstract class GameObject  {
         Point2D.Float newPos = new Point2D.Float (bounds.x + x, bounds.y + y);
         ArrayList<GameObject> iObj;
         Rectangle2D.Float inter;
-        int relevantSides = determineRelevantSides (x,y),adjustAxis;
+        int relevantSides = determineRelevantSides (x,y);
         float newValue;
 
         /*Encountered a bug where players can disappear if they walk against each other*/
@@ -32,19 +32,24 @@ public abstract class GameObject  {
         int i,maxAttempts = 100;                                //I have encountered a rare bug where, if both Players walk diagonal into each other, sometimes this loop never breaks.
         for (i = 0; i < maxAttempts; i++) {                     //I might look into this later, but this makes the code safer than a while(true) loop would anyway
             inter = new Rectangle2D.Float(newPos.x,newPos.y,bounds.width,bounds.height);  //Sets the Rectangle, where it would be
-            iObj = GameManager.GM.intersectsAny (inter);        //Find all other Objects
+            iObj = GameManager.GM.intersectsAny (inter,Wall.class);        //Find all other Objects
+            iObj.addAll(GameManager.GM.intersectsAny (inter,Player.class));
             removeThis (iObj);                                  //Removes itself from the list
             if (iObj.isEmpty())                                 //If the list is empty, it can move
                 break;
+            else if (iObj.get(0) instanceof Item) {
+                ((Item)iObj.get(0)).collected (this);
+                System.out.println (iObj.size());
+                break;
+            }
             for (GameObject go : iObj) {
                 inter = new Rectangle2D.Float(newPos.x,newPos.y,bounds.width,bounds.height);
                 Rectangle2D.intersect (inter, go.bounds,inter);    //Finds the part that intersects and saves it into inter
-                adjustAxis = chooseAxisToAdjust (relevantSides, (newPos.x - bounds.x), (newPos.y - bounds.y), go, inter);   //1 = horizontal, -1 = vertical
-                if (adjustAxis == 1) {
+                if (chooseAxisToAdjust (relevantSides, (newPos.x - bounds.x), (newPos.y - bounds.y), go, inter)) {      //Horizontal
                     newValue = (Math.abs(x) / x) * (Math.abs(x) - inter.width);
                     newPos = new Point2D.Float (bounds.x + newValue, newPos.y);
                     break;
-                } else if (adjustAxis == -1){ 
+                } else {                                                                                                //Vertical
                     newValue = (Math.abs(y) / y) * (Math.abs(y) - inter.height);
                     newPos = new Point2D.Float (newPos.x, bounds.y + newValue);
                     break;
@@ -76,14 +81,18 @@ public abstract class GameObject  {
         return relevantSides;
     }
     
-    public int chooseAxisToAdjust (int sides, float x, float y, GameObject go, Rectangle2D.Float inter) {
+    public boolean chooseAxisToAdjust (int sides, float x, float y, GameObject go, Rectangle2D.Float inter) {   //true - horizontal
         Point2D.Float p2 = go.getPos();
         Rectangle2D.Float r = go.getBounds();
         
         sides = sidesOnGameObjectSides (sides, r, inter);       //Removes all sides, that aren't on the side os the GameObject
         if (Integer.bitCount(sides) == 1)                       //If there is only one side, it is returned
-            return isHorizontal(sides)?1:-1;
-        return (inter.width == Math.abs(x) && inter.height == Math.abs(y))?0:((inter.height > Math.abs(y))?1:-1);
+            return isHorizontal(sides);
+        if (inter.width == Math.abs(x) && inter.height == Math.abs(y)) {        //if the player moves diagonal excactly into an edge this will prefere a horizontal adjustment
+//            System.out.println ("Error, cant decide on axis, returning horizontal");  
+            return true;
+        }
+        return (inter.height > Math.abs(y));
     }
     
     public boolean isHorizontal (int side) {

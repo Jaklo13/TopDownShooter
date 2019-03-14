@@ -44,17 +44,18 @@ public class ShotHandler {
         return false;                                   //this is just a failsafe, in case a shot goes out of bounds
     }
     
-    public void addShot (Point2D.Float p1, float speed, float dir, GameObject o) {
+    public void addShot (Point2D.Float p1, float speed, float dir, GameObject o,int dmg) {
         Point2D.Float p2 = new Point2D.Float (p1.x + speed * (float)Math.cos(dir) * -1, p1.y + speed * (float)Math.sin(dir) * -1);
         Line2D.Float l = new Line2D.Float (p1,p2);
-        Shot s = new Shot (this,l,o);
+        Shot s = new Shot (this,l,o,dmg);
         shots.add (s);
         checkHits (s);
     }
     
     public void checkHits (Shot shot) {   
         ArrayList<GameObject> iObj;                                                                         //Similar to the collision algorythm, an array is created, to store all Objects,
-        iObj = GameManager.GM.intersectsAny (shot.getHitLine());                                            //that intersect with the line
+        iObj = GameManager.GM.intersectsAny (shot.getHitLine(),Wall.class);                                 //that intersect with the line
+        iObj.addAll(GameManager.GM.intersectsAny (shot.getHitLine(),Player.class));
         shot.getShooter().removeThis (iObj);                                                                //removes the shooter from the objects that are hit
         if (iObj.isEmpty()) {
             return;

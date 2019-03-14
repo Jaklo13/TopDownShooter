@@ -28,7 +28,6 @@ public class Panel extends JPanel{
         setFocusable (true);
         setBackground (Color.LIGHT_GRAY);
         setBorder (BorderFactory.createLineBorder(Color.BLACK, 10));
-//        setBorder (BorderFactory.createLineBorder(Color.GRAY, ((1920 - dim.x < 1080 - dim.y)? (int)((1920 - dim.x) / 2) : (int)((1080 - dim.y) / 2))));
         setPreferredSize(new Dimension ((int)dim.x,(int)dim.y));
         
         MA ma = new MA ();
@@ -57,8 +56,8 @@ public class Panel extends JPanel{
                     at.translate(-halfWidth, -halfHeight);                          
                     g.drawImage(go.getSprite(), at, this);
 
-                    g.setColor(Color.red);                                        //use this to see the hitboxes of all Objects                        
-                    g.drawRect((int)go.bounds.x, (int)go.bounds.y, (int)go.bounds.width, (int)go.bounds.height);
+//                    g.setColor(Color.red);                                        //use this to see the hitboxes of all Objects                        
+//                    g.drawRect((int)go.bounds.x, (int)go.bounds.y, (int)go.bounds.width, (int)go.bounds.height);
                 }
             }
         } catch (ConcurrentModificationException e) {
@@ -141,6 +140,10 @@ public class Panel extends JPanel{
         @Override
         public void mousePressed (MouseEvent e) {
             GameManager.GM.mouseClicked ();
+        }
+        @Override
+        public void mouseReleased (MouseEvent e) {
+            GameManager.GM.mouseReleased ();
         }
     }
     
