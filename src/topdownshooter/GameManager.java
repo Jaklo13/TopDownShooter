@@ -7,7 +7,9 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -50,6 +52,7 @@ public class GameManager implements Runnable{
         window = new Window ();
         
         Key.initializeKeyCodesArray();
+        new Item (new Point2D.Float (100,100),1);
     }
     
     public void startGame () {
@@ -98,8 +101,8 @@ public class GameManager implements Runnable{
     
     public <T> void remove (T o) {
         if (o instanceof GameObject) {
-            gObjects.remove((GameObject)o);        //adds the GameObject to gObject for the paint function
-            if (o instanceof Wall)              //adds the object to the correct array
+            gObjects.remove((GameObject)o);         //adds the GameObject to gObject for the paint function
+            if (o instanceof Wall)                  //adds the object to the correct array
                 walls.remove((Wall)o);
             else if (o instanceof Player) {
                 players.remove((Player)o);
