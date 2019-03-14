@@ -64,14 +64,28 @@ public class Window {
         Point p = a.getWindowDimensions();
         BufferedImage image = new BufferedImage (p.x,p.y,BufferedImage.TYPE_4BYTE_ABGR_PRE);
         Graphics g = image.getGraphics();
-        g.setColor (new Color (000,200,100));           //Here we will ad a Ground Image later
-        g.fillRect(0, 0, p.x, p.y);
-        ArrayList<Wall> walls;
-        walls = a.getWalls();
-        for (Wall w : walls) {
-            Rectangle2D.Float b = w.getBounds();
-            g.drawImage(GameManager.GM.getSprite(GameManager.WALL_SPRITES, 0), (int)b.x, (int)b.y, null);
+        g.setColor (new Color (000,200,100));           //Here we will add a Ground Image later
+        g.fillRect(0, 0, a.getTiles ().length, p.y);
+        for (int i = 0; i < a.getTiles ()[0].length; i++) {
+            for (int j = 0; j < p.x; j++) {
+                switch (a.getTiles ()[i][j]) {
+                    case 0: g.setColor(Color.WHITE);
+                    break;
+                    case 1: g.setColor(Color.ORANGE);
+                    break;
+                    case 2: g.setColor(Color.BLUE);
+                    break;
+                    default: g.setColor(Color.red);
+                }
+                g.fillRect(i * Arena.TILE_SIZE, j * Arena.TILE_SIZE, Arena.TILE_SIZE, Arena.TILE_SIZE);
+            }
         }
+//        ArrayList<Wall> walls;
+//        walls = a.getWalls();
+//        for (Wall w : walls) {
+//            Rectangle2D.Float b = w.getBounds();
+//            g.drawImage(GameManager.GM.getSprite(GameManager.WALL_SPRITES, 0), (int)b.x, (int)b.y, null);
+//        }
         backgroundImage = image;
     }
     
