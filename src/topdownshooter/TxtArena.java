@@ -8,6 +8,11 @@ import java.util.ArrayList;
  * P = Spawnpoint
  * X = Wall
  * . = Floor
+    //Items
+ * H = Healing Orb
+ * D = DMG
+ * F = FireRate
+ * s = Speed
  * */
 public class TxtArena extends Arena {
 
@@ -32,7 +37,7 @@ public class TxtArena extends Arena {
                     tiles[x][y] = parseType(c);
                 }
             }
-
+            
             createTiles();
             
             reader.close();
@@ -55,11 +60,24 @@ public class TxtArena extends Arena {
         if(c == 'X' || c == 'x'){
             return 1;
         }
-
         if(c == '.'){
             return 0;
         }
-
+        
+        //Items
+        if (c == 'H' || c == 'h') {
+            return 3;
+        }
+        if (c == 'D' || c == 'd') {
+            return 4;
+        }
+        if (c == 'F' || c == 'f') {
+            return 5;
+        }
+        if (c == 'S' || c == 's') {
+            return 6;
+        }
+        
         System.out.println("ERROR AT PARSING");
 
         return -1;
