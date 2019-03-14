@@ -46,17 +46,11 @@ public class Menu extends JPanel {
             buttons[i].setBounds(0,locations[i].y,1920,sizes[i].y);
             add (buttons[i]);
         }
-        buttons[0].addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                GameManager.GM.startGame();
-            }
+        buttons[0].addActionListener((ActionEvent e) -> {
+            GameManager.GM.startGame();
         });
-        buttons[2].addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
+        buttons[2].addActionListener((ActionEvent e) -> {
+            System.exit(0);
         });
     }
     
