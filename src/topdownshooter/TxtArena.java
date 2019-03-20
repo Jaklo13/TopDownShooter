@@ -11,14 +11,17 @@ import java.util.ArrayList;
  * */
 public class TxtArena extends Arena {
 
-    private File arena1;
+
+    private final String arenaPath = "src\\Assets\\Arenas";
+
+    public static String selectedArena = "test1";
 
     //instantiates a new arena, parsing the tiles[][] array from a txt file "arena1"
     //TODO: User selectable Maps
     public TxtArena(){
-        arena1 = new File("src\\Assets\\arena1.txt");
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(arena1));
+            File file = new File(arenaPath + "\\" + selectedArena + ".txt");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
             ArrayList<String> rows = new ArrayList<>();
             String s;
             while ((s = reader.readLine()) != null) {
@@ -32,7 +35,6 @@ public class TxtArena extends Arena {
                     tiles[x][y] = parseType(c);
                 }
             }
-
             createTiles();
             
             reader.close();

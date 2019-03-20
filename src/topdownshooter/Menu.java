@@ -52,6 +52,12 @@ public class Menu extends JPanel {
                 GameManager.GM.startGame();
             }
         });
+
+        buttons[1].addActionListener(e -> {
+            //GameManager.GM.set
+            GameManager.GM.window.setWindow(new OptionMenu());
+        });
+
         buttons[2].addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -37,7 +37,7 @@ public class GameManager implements Runnable{
     private ArrayList<Item> items = new ArrayList<>();
     private HashSet<Integer> kp = new HashSet<>();  //Keys pressed
     private Arena arena;
-    private Window window;
+    public Window window;
     private int menu = 1; //0 - in game, 1 - main menu
     private ShotHandler sHandler;
     private Clip bgm;
@@ -69,13 +69,13 @@ public class GameManager implements Runnable{
         JOptionPane.showMessageDialog(window.getJFrame(), "Player " + (players.get(0).getPn() + 1) + " has won", "End Of Match", 0);
         menu = 1;
         remove (players.get(0));
-        window.setWindow(new Menu ());
+        window.setWindow(window.menu);
         stopMusic ();
     }
     
     public void spawnPlayer(int pn, boolean isXbox) {
         try {
-            Player player = (isXbox)? new XboxPlayer (pn) : new Player (pn);
+            Player player = (isXbox) ? new XboxPlayer (pn) : new Player (pn);
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println (e + ", Invalid Player Number");
             e.printStackTrace ();

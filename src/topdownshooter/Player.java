@@ -14,7 +14,7 @@ public class Player extends GameObject {
     private int pn; //playerNumber
     protected float speed = 5f;
     private int health = MAX_HEALTH, fireRate = DEFAULT_FIRE_RATE, dmg = DEFAULT_DMG, shotSpeed = DEFAULT_SHOT_SPEED;
-    private int nextShot = 0;
+    protected int nextShot = 0;
     private boolean shooting = false;
     private BufferedImage bullet;
     
