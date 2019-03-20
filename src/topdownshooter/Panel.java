@@ -41,27 +41,36 @@ public class Panel extends JPanel{
         g.drawImage(backgroundImage, 0,0, null);
     }
     
-    public void paintGameObjects (Graphics2D g) {
+    public void paintPlayers (Graphics2D g) {
         try {
-            ArrayList<GameObject> gObjects = GameManager.GM.getGameObjects();
-            for (GameObject go : gObjects) {
-                if (!(go instanceof Wall)) {
-                    BufferedImage sprite = go.getSprite();
-                    float halfWidth = (float)go.getBounds().getWidth() / 2, halfHeight = (float)go.getBounds().getHeight() / 2;
-                    Point2D.Float pos = go.getPos(GameObject.CENTER);
-                    AffineTransform at = new AffineTransform ();
+            ArrayList<Player> players = GameManager.GM.getPlayers();
+            for (GameObject p : players) {
+                BufferedImage sprite = p.getSprite();
+                float halfWidth = (float)p.getBounds().getWidth() / 2, halfHeight = (float)p.getBounds().getHeight() / 2;
+                Point2D.Float pos = p.getPos(GameObject.CENTER);
+                AffineTransform at = new AffineTransform ();
 
-                    at.translate(pos.getX(), pos.getY());                           //First the Affine Transform is centerd on the position
-                    at.rotate(go.getRotation());                                    //Then it's rotated and centered around the Object's position
-                    at.translate(-halfWidth, -halfHeight);                          
-                    g.drawImage(go.getSprite(), at, this);
+                at.translate(pos.getX(), pos.getY());                           //First the Affine Transform is centerd on the position
+                at.rotate(p.getRotation());                                    //Then it's rotated and centered around the Object's position
+                at.translate(-halfWidth, -halfHeight);                          
+                g.drawImage(p.getSprite(), at, this);
 
 //                    g.setColor(Color.red);                                        //use this to see the hitboxes of all Objects                        
 //                    g.drawRect((int)go.bounds.x, (int)go.bounds.y, (int)go.bounds.width, (int)go.bounds.height);
-                }
             }
         } catch (ConcurrentModificationException e) {
             System.out.println (e + ", paintObjects");
+        }
+    }
+    
+    public void paintItems (Graphics2D g) {
+        ArrayList<Item> items = GameManager.GM.getItems ();
+        for (Item i : items) {
+            if (i.isActive()) {
+                BufferedImage sprite = i.getSprite ();
+                Point2D.Float pos = i.getPos(GameObject.TOP | GameObject.LEFT);
+                g.drawImage(i.getSprite(),(int)pos.x,(int)pos.y, this);
+            }
         }
     }
     
@@ -109,7 +118,8 @@ public class Panel extends JPanel{
     public void paintEverything (Graphics2D g) {
         try { 
             paintBackgroundImage (g);
-            paintGameObjects (g);
+            paintPlayers (g);
+            paintItems (g);
             paintBullets (g);
             paintUI (g);
             paintDebug (g);

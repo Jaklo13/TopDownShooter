@@ -6,6 +6,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
+import javax.sound.sampled.Clip;
 
 public class Player extends GameObject {
     public static final String[] DIRECTION_NAMES = new String[]{"UP","DOWN","LEFT","RIGHT"};
@@ -69,6 +70,7 @@ public class Player extends GameObject {
         if (shooting && nextShot == 0) {
             GameManager.GM.getShotHandler().addShot(getPos(0), shotSpeed, getRotation(), this, dmg);
             nextShot = fireRate;
+            GameManager.GM.playShotSound ();
         }
     }
     
@@ -78,6 +80,7 @@ public class Player extends GameObject {
     
     public void takeDamage (int dmg) {
         health -= dmg;
+        GameManager.GM.playHitSound();
         if (health <= 0) {
             die ();
         }
@@ -90,7 +93,8 @@ public class Player extends GameObject {
     public void checkForItems () {
         ArrayList<GameObject> items = GameManager.GM.intersectsAny(bounds, Item.class);
         for (GameObject i : items) {
-            ((Item)i).collected(this);
+            if (((Item)i).isActive())
+                ((Item)i).collected(this);
         }
     }
     

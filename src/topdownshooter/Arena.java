@@ -9,7 +9,6 @@ public class Arena {
     private int width, height;
     //0 - open, 1 - wall
     protected int[][] tiles;
-    private ArrayList<Wall> walls;
     private ArrayList<Point> spawnPoints;
 
 
@@ -65,15 +64,22 @@ public class Arena {
     }
     
     public void createTiles () {
-        walls = new ArrayList<>();
         spawnPoints = new ArrayList<>();
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[0].length; j++) {
-                if (tiles[i][j] == 1) {
-                    walls.add(new Wall(new Point2D.Float(i*TILE_SIZE,j*TILE_SIZE)));
-                }
-                if (tiles[i][j] == 2) {
-                    spawnPoints.add(new Point(i,j));
+                switch (tiles[i][j]) {
+                    case 1:
+                        new Wall(new Point2D.Float(i*TILE_SIZE,j*TILE_SIZE));
+                        break;
+                    case 2:
+                        spawnPoints.add(new Point(i,j));
+                        break;
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                        new Item (new Point2D.Float(i*TILE_SIZE,j*TILE_SIZE),tiles[i][j]-3);
+                        break;
                 }
             }
         }
@@ -99,7 +105,7 @@ public class Arena {
     }
     
     public ArrayList<Wall> getWalls () {
-        return walls;
+        return GameManager.GM.getWalls();   //for simplicity, the walls are saved inside GameManager, which wont matter, as long as we only load one Arena at a time
     }
     
     public int[][] getTiles () {

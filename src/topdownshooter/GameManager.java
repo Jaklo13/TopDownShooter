@@ -7,9 +7,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -19,6 +17,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -32,8 +32,8 @@ public class GameManager implements Runnable{
             new String[] {"Bullet.png"}};
     public static final int PLAYER_SPRITES = 0, WEAPON_SPRITES = 1, ITEM_SPRITES = 2, WALL_SPRITES = 3, BULLET_SPRITES = 4; //use as the first pointer in the allSprites array
     public static GameManager GM;
-    private BufferedImage[][] sprites = new BufferedImage[][]{new BufferedImage[SPRITE_NAMES[0].length], new BufferedImage[SPRITE_NAMES[1].length], new BufferedImage[SPRITE_NAMES[2].length], new BufferedImage[SPRITE_NAMES[3].length], new BufferedImage[SPRITE_NAMES[4].length]};
-    private ArrayList<GameObject> gObjects = new ArrayList<>();   //this keeps track of all GameObjects, so the Window can draw it
+    private static BufferedImage[][] sprites = new BufferedImage[][]{new BufferedImage[SPRITE_NAMES[0].length], new BufferedImage[SPRITE_NAMES[1].length], new BufferedImage[SPRITE_NAMES[2].length], new BufferedImage[SPRITE_NAMES[3].length], new BufferedImage[SPRITE_NAMES[4].length]};
+    private static BufferedImage backgroundImage;
     private ArrayList<Player> players = new ArrayList<>();
     private ArrayList<Wall> walls = new ArrayList<>();
     private ArrayList<Item> items = new ArrayList<>();
@@ -47,17 +47,15 @@ public class GameManager implements Runnable{
     
     public GameManager () {
         GM = this;
-        initializeSprites();
+//        initializeSprites();
         sHandler = new ShotHandler ();
         window = new Window ();
         
         Key.initializeKeyCodesArray();
-        new Item (new Point2D.Float (100,100),1);
     }
     
     public void startGame () {
         menu = 0;
-        //arena = new Arena (1);
         arena = new TxtArena();
         spawnPlayer(0, false);
         spawnPlayer(1, true);
@@ -71,9 +69,21 @@ public class GameManager implements Runnable{
     public void endGame () {
         JOptionPane.showMessageDialog(window.getJFrame(), "Player " + (players.get(0).getPn() + 1) + " has won", "End Of Match", 0);
         menu = 1;
-        remove (players.get(0));
+        removeEverything ();
         window.setWindow(new Menu ());
         stopMusic ();
+    }
+    
+    public void removeEverything () {
+        while (!players.isEmpty()) {
+            remove (players.get(0));
+        }
+        while (!items.isEmpty()) {
+            remove (items.get(0));
+        }
+        while (!walls.isEmpty()) {
+            remove (walls.get(0));
+        }
     }
     
     public void spawnPlayer(int pn, boolean isXbox) {
@@ -85,35 +95,25 @@ public class GameManager implements Runnable{
         }
     }
     
-    public <T> void addGameObject(T o) {
-        if (o instanceof GameObject) {
-            gObjects.add((GameObject)o);        //adds the GameObject to gObject for the paint function
-            if (o instanceof Wall)              //adds the object to the correct array
-                walls.add((Wall)o);
-            else if (o instanceof Player)
-                players.add((Player)o);
-            else if (o instanceof Item)
-                items.add((Item)o);
-        } else {
-            System.out.println ("Error, not a GameObject");
-        }
+    public void addGameObject(GameObject o) {
+        if (o instanceof Wall)              //adds the object to the correct array
+            walls.add((Wall)o);
+        else if (o instanceof Player)
+            players.add((Player)o);
+        else if (o instanceof Item)
+            items.add((Item)o);
     }
     
-    public <T> void remove (T o) {
-        if (o instanceof GameObject) {
-            gObjects.remove((GameObject)o);         //adds the GameObject to gObject for the paint function
-            if (o instanceof Wall)                  //adds the object to the correct array
-                walls.remove((Wall)o);
-            else if (o instanceof Player) {
-                players.remove((Player)o);
-                if (hasEnded()) {
-                    endGame ();
-                }
-            } else if (o instanceof Item)
-                items.remove((Item)o);
-        } else {
-            System.out.println ("Error, not a GameObject");
-        }
+    public void remove (GameObject o) {
+        if (o instanceof Wall)                  //adds the object to the correct array
+            walls.remove((Wall)o);
+        else if (o instanceof Player) {
+            players.remove((Player)o);
+            if (hasEnded()) {
+                endGame ();
+            }
+        } else if (o instanceof Item)
+            items.remove((Item)o);
     }
     
     public boolean hasEnded () {
@@ -122,6 +122,7 @@ public class GameManager implements Runnable{
     
     private void update() {
         updatePlayers();
+        updateItems ();
         sHandler.update();
         checkFocus ();
     }
@@ -133,6 +134,12 @@ public class GameManager implements Runnable{
             }
         } catch (ConcurrentModificationException e) {
             System.out.println (e);
+        }
+    }
+    
+    public void updateItems () {
+        for (Item i : items) {
+            i.update();
         }
     }
     
@@ -153,7 +160,7 @@ public class GameManager implements Runnable{
             players.get(0).setShooting (false);
     }
     
-    public void initializeSprites() {
+    public static void initializeSprites() {
         try {
             for (int i = 0; i < SPRITE_NAMES.length; i++){
                 for (int j = 0; j < SPRITE_NAMES[i].length; j++) {
@@ -161,6 +168,7 @@ public class GameManager implements Runnable{
                     sprites[i][j] = ImageIO.read(file);
                 }
             }
+            backgroundImage = ImageIO.read(new File (ASSETS_PATH + "Background.png"));
         } catch (IOException e) {
             e.printStackTrace ();
         }
@@ -186,7 +194,8 @@ public class GameManager implements Runnable{
         } else if (type == Item.class) {
             list = (ArrayList<T>)items;
         } else {
-            list = (ArrayList<T>)gObjects;
+            System.out.println ("Error, not a valid type");
+            return intersectedObjects;
         }
         for (GameObject g : (ArrayList<GameObject>)list) {
             if (s instanceof Line2D) {
@@ -211,7 +220,7 @@ public class GameManager implements Runnable{
             bgm.setLoopPoints(0, -1);
             bgm.loop(999);
             bgm.start();
-        } catch (Exception e) {
+        } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
             e.printStackTrace ();
         }
     }
@@ -219,6 +228,32 @@ public class GameManager implements Runnable{
     public void stopMusic () {
         bgm.stop();
     }
+    
+    public void playShotSound () {
+        try {
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File (ASSETS_PATH + "Shot.wav"));
+            clip.open(inputStream);
+            FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            volume.setValue(-1 * 30);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace ();
+        }
+    }
+    public void playHitSound () {
+        try {
+            Clip clip = AudioSystem.getClip();
+            AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File (ASSETS_PATH + "HitPlayer.wav"));
+            clip.open(inputStream);
+            FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            volume.setValue(-1 * 25);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace ();
+        }
+    }
+    
     
     public Window getWindow() {
         return window;
@@ -231,13 +266,17 @@ public class GameManager implements Runnable{
     public ShotHandler getShotHandler() {
         return sHandler;
     }
-    
-    public ArrayList<GameObject> getGameObjects() {
-        return gObjects;
-    }
 
     public ArrayList<Player> getPlayers() {
         return players;
+    }
+
+    public ArrayList<Item> getItems() {
+        return items;
+    }
+
+    public ArrayList<Wall> getWalls() {
+        return walls;
     }
     
     public int getPlayerHealth (int pn) {
@@ -264,23 +303,15 @@ public class GameManager implements Runnable{
         kp.remove (k);
     }
     
-    public Point2D.Float getShootingDistance (float r) {
-        float minLength = window.getDiagonal() * -1;        //The will always be longer than it needs to be, but since there aren't any Objects outside
-        Point2D.Float p = new Point2D.Float ();             //the window, the length doesn't matter, as long as the shot reaches the end
-        p.x = (float)(Math.cos (r) * minLength);
-        p.y = (float)(Math.sin (r) * minLength);
-        return p;
-    }
-    
-    public  BufferedImage[][] getSprites() {
+    public BufferedImage[][] getSprites() {
         return sprites;
     }
     
-    public  BufferedImage[] getSpriteType(int type) {
+    public BufferedImage[] getSpriteType(int type) {
         return sprites[type];
     }
     
-    public  BufferedImage getSprite (int type, int nr) {
+    public BufferedImage getSprite (int type, int nr) {
         try {
             if (nr >= sprites[type].length) {
                 throw new Exception ();
@@ -293,11 +324,16 @@ public class GameManager implements Runnable{
         return sprites[type][nr];
     }
     
+    public BufferedImage getBackgroundImage () {
+        return backgroundImage;
+    }
+    
     public Point2D.Float getMousePos () {
         return window.getMousePos();
     }
     
     public static void main(String[] args) {
+        initializeSprites ();
         Thread t1 = new Thread(new GameManager());
         t1.start();
     }

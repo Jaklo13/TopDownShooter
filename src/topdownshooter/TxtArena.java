@@ -65,16 +65,16 @@ public class TxtArena extends Arena {
         }
         
         //Items
-        if (c == 'H' || c == 'h') {
+        if (c == 'D' || c == 'd') {
             return 3;
         }
-        if (c == 'D' || c == 'd') {
+        if (c == 'S' || c == 's') {
             return 4;
         }
         if (c == 'F' || c == 'f') {
             return 5;
         }
-        if (c == 'S' || c == 's') {
+        if (c == 'H' || c == 'h') {
             return 6;
         }
         

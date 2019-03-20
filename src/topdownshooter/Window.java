@@ -1,16 +1,17 @@
 package topdownshooter;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.IllegalComponentStateException;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import javax.swing.JFrame;
 import java.awt.geom.Rectangle2D;
+import javax.swing.JFrame;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -63,29 +64,19 @@ public class Window {
     public void paintBackgroundImage (Arena a) {
         Point p = a.getWindowDimensions();
         BufferedImage image = new BufferedImage (p.x,p.y,BufferedImage.TYPE_4BYTE_ABGR_PRE);
-        Graphics g = image.getGraphics();
-        g.setColor (new Color (000,200,100));           //Here we will add a Ground Image later
-        g.fillRect(0, 0, a.getTiles ().length, p.y);
-        for (int i = 0; i < a.getTiles ()[0].length; i++) {
-            for (int j = 0; j < p.x; j++) {
-                switch (a.getTiles ()[i][j]) {
-                    case 0: g.setColor(Color.WHITE);
-                    break;
-                    case 1: g.setColor(Color.ORANGE);
-                    break;
-                    case 2: g.setColor(Color.BLUE);
-                    break;
-                    default: g.setColor(Color.red);
-                }
-                g.fillRect(i * Arena.TILE_SIZE, j * Arena.TILE_SIZE, Arena.TILE_SIZE, Arena.TILE_SIZE);
-            }
+        Graphics2D g = (Graphics2D)image.getGraphics();
+        
+        BufferedImage bImage = GameManager.GM.getBackgroundImage();
+        AffineTransform at = new AffineTransform ();
+        at.scale ((double)p.x / bImage.getWidth(),(double)p.y / bImage.getHeight());
+        g.drawImage(bImage, at, jFrame);
+        
+        ArrayList<Wall> walls;
+        walls = a.getWalls();
+        for (Wall w : walls) {
+            Rectangle2D.Float b = w.getBounds();
+            g.drawImage(GameManager.GM.getSprite(GameManager.WALL_SPRITES, 0), (int)b.x, (int)b.y, null);
         }
-//        ArrayList<Wall> walls;
-//        walls = a.getWalls();
-//        for (Wall w : walls) {
-//            Rectangle2D.Float b = w.getBounds();
-//            g.drawImage(GameManager.GM.getSprite(GameManager.WALL_SPRITES, 0), (int)b.x, (int)b.y, null);
-//        }
         backgroundImage = image;
     }
     

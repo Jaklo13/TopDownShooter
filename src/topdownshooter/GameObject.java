@@ -37,11 +37,6 @@ public abstract class GameObject  {
             removeThis (iObj);                                  //Removes itself from the list
             if (iObj.isEmpty())                                 //If the list is empty, it can move
                 break;
-            else if (iObj.get(0) instanceof Item) {
-                ((Item)iObj.get(0)).collected (this);
-                System.out.println (iObj.size());
-                break;
-            }
             for (GameObject go : iObj) {
                 inter = new Rectangle2D.Float(newPos.x,newPos.y,bounds.width,bounds.height);
                 Rectangle2D.intersect (inter, go.bounds,inter);    //Finds the part that intersects and saves it into inter
