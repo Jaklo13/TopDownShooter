@@ -18,12 +18,17 @@ public class TxtArena extends Arena {
 
     private File arena1;
 
+    //sets the default arena to arena1
+    public static String selectedArena  = "arena1";
+    private final String arenaPath = GameManager.ASSETS_PATH + "Arenas\\";
+
+
     //instantiates a new arena, parsing the tiles[][] array from a txt file "arena1"
     //TODO: User selectable Maps
     public TxtArena(){
-        arena1 = new File("src\\Assets\\arena1.txt");
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(arena1));
+            File file = new File(arenaPath + "\\" + selectedArena + ".txt");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
             ArrayList<String> rows = new ArrayList<>();
             String s;
             while ((s = reader.readLine()) != null) {
@@ -37,9 +42,8 @@ public class TxtArena extends Arena {
                     tiles[x][y] = parseType(c);
                 }
             }
-            
             createTiles();
-            
+
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,7 +67,6 @@ public class TxtArena extends Arena {
         if(c == '.'){
             return 0;
         }
-        
         //Items
         if (c == 'D' || c == 'd') {
             return 3;

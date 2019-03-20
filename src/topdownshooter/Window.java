@@ -1,5 +1,8 @@
 package topdownshooter;
 
+import com.studiohartman.jamepad.ControllerManager;
+import com.studiohartman.jamepad.ControllerState;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -21,10 +24,11 @@ public class Window {
     private JPanel panel;
     private BufferedImage backgroundImage;
     private int width, height;
+    public Menu menu;
     //index 0 => x axis, index 1 => y axis
 
-//    private ControllerManager cmanager;
-//    private ControllerState cstate;
+    private ControllerManager cmanager;
+    private ControllerState cstate;
     
     public Window () {  //for loading the menu
         this.width = 1920;
@@ -36,8 +40,8 @@ public class Window {
             }
         });
         
-//        cmanager = new ControllerManager();
-//        cmanager.initSDLGamepad();
+        cmanager = new ControllerManager();
+        cmanager.initSDLGamepad();
     }
     
     public void createWindow () {
@@ -46,7 +50,8 @@ public class Window {
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setVisible(true);
         jFrame.setResizable(false);
-        panel = new Menu ();
+        menu = new Menu();
+        panel = menu;
         jFrame.add (panel);
         jFrame.pack();
         jFrame.setLocationRelativeTo (null);
@@ -86,15 +91,21 @@ public class Window {
         }
     }
     
-//    public float[] getXboxDirectionsLeft(){
-//        cstate = cmanager.getState(0);
-//        return new float[]{cstate.leftStickX, cstate.leftStickY};
-//    }
+    public float[] getXboxDirectionsLeft(){
+        cstate = cmanager.getState(0);
+        return new float[]{cstate.leftStickX, cstate.leftStickY};
+    }
 
-//    public float[] getXboxDirectionsRight(){ //doesnt get a new state because its always called directly after getXboxDirectionsLeft()
-//        return new float[]{cstate.rightStickX, cstate.rightStickY}; // => avoids double reading
-//    }
-    
+    public float[] getXboxDirectionsRight(){ //doesnt get a new state because its always called directly after getXboxDirectionsLeft()
+        return new float[]{cstate.rightStickX, cstate.rightStickY}; // => avoids double reading
+    }
+
+    public boolean getXboxShooting(){
+        cstate = cmanager.getState(0);
+        //System.out.println(cstate.leftTrigger);
+        return cstate.rightTrigger > 0.05f;
+    }
+
     public Point2D.Float getDimensions () {
         return new Point2D.Float (width, height);
     }
