@@ -21,7 +21,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class GameManager implements Runnable{
-    public static final String ASSETS_PATH = "src\\Assets\\";
+
+    public static String ASSETS_PATH;
+
     public static final String[][] SPRITE_NAMES = new String[][]{
             new String[] {"Player.png"},
             new String[] {"Pistol.png","Rifle.png"},
@@ -44,6 +46,7 @@ public class GameManager implements Runnable{
     
     
     public GameManager () {
+
         GM = this;
         initializeSprites();
         sHandler = new ShotHandler ();
@@ -295,8 +298,15 @@ public class GameManager implements Runnable{
     }
     
     public static void main(String[] args) {
+
+        //workaround to ensure correct path
+        File f = new File("");
+        System.out.println(f.getAbsolutePath() + "\\");
+        ASSETS_PATH = f.getAbsolutePath() + "\\src\\Assets\\";
+
         Thread t1 = new Thread(new GameManager());
         t1.start();
+
     }
 
     @Override

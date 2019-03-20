@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class TxtArena extends Arena {
 
 
-    private final String arenaPath = "src\\Assets\\Arenas";
+    private final String arenaPath = GameManager.ASSETS_PATH + "Arenas\\";
 
     public static String selectedArena = "test1";
 

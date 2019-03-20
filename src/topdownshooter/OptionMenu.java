@@ -17,6 +17,7 @@ public class OptionMenu extends JPanel{
         setLayout (new BoxLayout(this, BoxLayout.Y_AXIS));
         
         button = new JButton ();
+        button.setAlignmentX(CENTER_ALIGNMENT);
         button.setBounds (100,100,100,100);
         button.setText("Exit");
         button.addActionListener(e -> {
@@ -24,11 +25,11 @@ public class OptionMenu extends JPanel{
             gm.window.setWindow(gm.window.menu);
         });
         //button.setHorizontalAlignment(SwingConstants.CENTER);
-        button.setFont(new Font ("Arial",Font.BOLD,10));
-        button.setAlignmentX(CENTER_ALIGNMENT);
+        button.setFont(new Font ("Arial",Font.BOLD,20));
+
         this.add(button);
 
-        File dir = new File("src\\Assets\\Arenas");
+        File dir = new File(GameManager.ASSETS_PATH + "\\Arenas");
 
         FilenameFilter filter = new FilenameFilter() {
             @Override
@@ -45,13 +46,18 @@ public class OptionMenu extends JPanel{
                 final String full_name = f.getName();
                 final int li = full_name.lastIndexOf('.');
                 final String name = full_name.substring(0, li);
+
                 JButton b = new JButton();
                 b.setBounds(100, 100, 100, 100);
+                b.setFont(new Font ("Arial",Font.BOLD,20));
                 b.setText(name);
+                b.setAlignmentX(CENTER_ALIGNMENT);
+
                 b.addActionListener(e -> {
                     TxtArena.selectedArena = name;
                     GameManager.GM.startGame();
                 });
+
                 add(b);
             }
         }
